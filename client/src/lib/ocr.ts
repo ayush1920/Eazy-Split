@@ -1,7 +1,8 @@
 import type { ReceiptGroup } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
-const API_URL = 'http://localhost:3000/api/ocr';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = `${API_BASE_URL}/api/ocr`;
 
 export async function uploadReceipt(file: File, selectedModel?: string): Promise<ReceiptGroup & { _modelUsed?: string }> {
     const formData = new FormData();
