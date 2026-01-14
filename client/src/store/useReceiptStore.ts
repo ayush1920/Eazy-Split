@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import type { ReceiptGroup, Item, SplitAssignment } from '@/types';
+import type { ReceiptGroup, SplitAssignment } from '@/types';
 import { dbPromise } from '@/lib/db';
-import { v4 as uuidv4 } from 'uuid';
+
 
 interface ReceiptState {
     groups: ReceiptGroup[];
