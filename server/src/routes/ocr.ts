@@ -6,7 +6,7 @@ import { DEFAULT_MODEL } from '../config/models';
 import fs from 'fs';
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.post('/', upload.single('image'), async (req: any, res: any) => {
     if (!req.file) {
@@ -21,14 +21,11 @@ router.post('/', upload.single('image'), async (req: any, res: any) => {
         const autoMode = preferences.autoMode ?? true;
 
         const result = await processReceiptImage(
-            req.file.path,
+            req.file.buffer,
             req.file.mimetype,
             modelToUse,
             autoMode // Only attempt fallback if auto mode is enabled
         );
-
-        // Cleanup upload
-        fs.unlinkSync(req.file.path);
 
         // Return both the data and the model that was used
         res.json({
@@ -36,8 +33,6 @@ router.post('/', upload.single('image'), async (req: any, res: any) => {
             _modelUsed: result.modelUsed,
         });
     } catch (error: any) {
-        // Cleanup on error too
-        if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
         console.error(error);
         res.status(500).json({ error: error.message || "Internal Server Error" });
     }

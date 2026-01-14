@@ -6,7 +6,7 @@ import { getModelConfig, getNextFallbackModel } from '../config/models';
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export const processReceiptImage = async (
-  filePath: string,
+  fileBuffer: Buffer,
   mimeType: string,
   modelId: string = 'gemini-2.0-flash',
   attemptFallback: boolean = true
@@ -17,20 +17,9 @@ export const processReceiptImage = async (
 
   console.log("Processing with Gemini...");
 
-  // In some cases (like curl tests or certain browser uploads), the mimeType might be generic.
-  // We'll try to infer it from the file extension if it's application/octet-stream.
-  let finalMimeType = mimeType;
-  if (mimeType === "application/octet-stream" || !mimeType) {
-    const ext = filePath.split('.').pop()?.toLowerCase();
-    switch (ext) {
-      case 'jpg':
-      case 'jpeg': finalMimeType = 'image/jpeg'; break;
-      case 'png': finalMimeType = 'image/png'; break;
-      case 'webp': finalMimeType = 'image/webp'; break;
-      case 'heic': finalMimeType = 'image/heic'; break;
-      case 'heif': finalMimeType = 'image/heif'; break;
-      default: finalMimeType = 'image/jpeg'; // Fallback to jpeg for Gemini
-    }
+  let finalMimeType = mimeType || 'image/jpeg';
+  if (mimeType === "application/octet-stream") {
+    finalMimeType = 'image/jpeg'; // Fallback
   }
 
   const modelConfig = getModelConfig(modelId);
@@ -46,7 +35,7 @@ export const processReceiptImage = async (
 
   const filePart = {
     inlineData: {
-      data: fs.readFileSync(filePath).toString("base64"),
+      data: fileBuffer.toString("base64"),
       mimeType: finalMimeType,
     },
   };
@@ -111,7 +100,7 @@ export const processReceiptImage = async (
 
       if (fallbackModel) {
         console.log(`Falling back to ${fallbackModel.displayName}`);
-        return processReceiptImage(filePath, mimeType, fallbackModel.id, true);
+        return processReceiptImage(fileBuffer, mimeType, fallbackModel.id, true);
       } else {
         throw new Error("Quota exceeded for all available models.");
       }

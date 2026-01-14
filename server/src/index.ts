@@ -22,6 +22,12 @@ app.get('/', (req, res) => {
     res.send('Receipt Splitter API is running');
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// Export app for Vercel
+export default app;
+
+// Only listen if not running on Vercel (or similar serverless env)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
