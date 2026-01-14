@@ -57,7 +57,6 @@ export function UploadModal() {
                 const group = await uploadReceipt(file, selectedModel, autoMode);
                 // Ensure date is today's date from browser, and platform is a default
                 group.date = todayDate;
-                ṇ
                 // Log which model was used
                 if (group._modelUsed) {
                     console.log(`Receipt processed using model: ${group._modelUsed}`);
