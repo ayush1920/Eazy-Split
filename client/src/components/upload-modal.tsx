@@ -50,10 +50,11 @@ export function UploadModal() {
         // Get model preference from store
         const { preferences } = useModelStore.getState();
         const selectedModel = preferences?.selectedModel;
+        const autoMode = preferences?.autoMode ?? true;
 
         try {
             for (const file of files) {
-                const group = await uploadReceipt(file, selectedModel);
+                const group = await uploadReceipt(file, selectedModel, autoMode);
                 // Ensure date is today's date from browser, and platform is a default
                 group.date = todayDate;
 

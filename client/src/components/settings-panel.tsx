@@ -5,9 +5,7 @@ import { Settings, ChevronDown, Check } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
 import { useModelStore } from '@/store/useModelStore';
 import {
-    fetchAvailableModels,
-    fetchCurrentPreferences,
-    updateModelPreference
+    fetchAvailableModels
 } from '@/lib/models';
 import { cn } from '@/lib/utils';
 
@@ -38,33 +36,33 @@ export function SettingsPanel() {
 
     const loadData = async () => {
         try {
-            const [modelsData, prefsData] = await Promise.all([
-                fetchAvailableModels(),
-                fetchCurrentPreferences(),
-            ]);
+            const modelsData = await fetchAvailableModels();
             setModels(modelsData);
-            setPreferences(prefsData);
+
+            // Initialize preferences if null
+            if (!preferences && modelsData.length > 0) {
+                setPreferences({
+                    selectedModel: modelsData[0].id,
+                    autoMode: true
+                });
+            }
         } catch (error) {
             console.error('Failed to load model data:', error);
         }
     };
 
-    const handleModelChange = async (modelId: string) => {
-        try {
-            const updated = await updateModelPreference(modelId, undefined);
-            setPreferences(updated);
-        } catch (error) {
-            console.error('Failed to update model:', error);
-        }
+    const handleModelChange = (modelId: string) => {
+        setPreferences({
+            selectedModel: modelId,
+            autoMode: preferences?.autoMode ?? true
+        });
     };
 
-    const handleAutoModeToggle = async (enabled: boolean) => {
-        try {
-            const updated = await updateModelPreference(undefined, enabled);
-            setPreferences(updated);
-        } catch (error) {
-            console.error('Failed to update auto mode:', error);
-        }
+    const handleAutoModeToggle = (enabled: boolean) => {
+        setPreferences({
+            selectedModel: preferences?.selectedModel || models[0]?.id,
+            autoMode: enabled
+        });
     };
 
     return (

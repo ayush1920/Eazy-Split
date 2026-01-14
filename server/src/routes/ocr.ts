@@ -16,9 +16,21 @@ router.post('/', upload.single('image'), async (req: any, res: any) => {
     try {
         // Get model preference from request body or use stored preference
         const requestedModel = req.body.model;
-        const preferences = getPreferences();
+        const requestedAutoMode = req.body.autoMode;
+
+        // Try to get stored preferences, but don't fail if it doesn't work (Vercel read-only FS)
+        let preferences: any = {};
+        try {
+            preferences = getPreferences();
+        } catch (e) {
+            console.warn('Could not read server preferences, using defaults');
+        }
+
         const modelToUse = requestedModel || preferences.selectedModel || DEFAULT_MODEL;
-        const autoMode = preferences.autoMode ?? true;
+        // Parse "true"/"false" string from FormData if present, otherwise default
+        const autoMode = requestedAutoMode !== undefined
+            ? (requestedAutoMode === 'true')
+            : (preferences.autoMode ?? true);
 
         const result = await processReceiptImage(
             req.file.buffer,

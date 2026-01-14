@@ -4,9 +4,10 @@ import { v4 as uuidv4 } from 'uuid';
 const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3000');
 const API_URL = `${API_BASE_URL}/api/ocr`;
 
-export async function uploadReceipt(file: File, selectedModel?: string): Promise<ReceiptGroup & { _modelUsed?: string }> {
+export async function uploadReceipt(file: File, selectedModel?: string, autoMode: boolean = true): Promise<ReceiptGroup & { _modelUsed?: string }> {
     const formData = new FormData();
     formData.append('image', file);
+    formData.append('autoMode', String(autoMode));
 
     // Add model preference if specified
     if (selectedModel) {
