@@ -1,0 +1,50 @@
+# Global
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-store
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment Variables (CRITICAL: Do not remove)
+.env
+.env.local
+.env.*.local
+!.env.example
+!.env.test
+
+# Build Outputs
+dist/
+dist-ssr/
+build/
+out/
+.next/
+.nuxt/
+.output/
+.cache/
+.parcel-cache
+coverage/
+
+# Server Specific
+server/dist/
+server/uploads/
+server/logs/
+*.log
+
+# Client Specific (Vite/React)
+client/dist/
+*.local
+.vite/

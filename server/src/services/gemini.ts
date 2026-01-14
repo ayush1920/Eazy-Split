@@ -1,0 +1,122 @@
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
+import fs from "fs";
+import { getModelConfig, getNextFallbackModel } from '../config/models';
+
+// Initialize Gemini
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+
+export const processReceiptImage = async (
+  filePath: string,
+  mimeType: string,
+  modelId: string = 'gemini-2.0-flash',
+  attemptFallback: boolean = true
+): Promise<{ data: any; modelUsed: string }> => {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is not set");
+  }
+
+  console.log("Processing with Gemini...");
+
+  // In some cases (like curl tests or certain browser uploads), the mimeType might be generic.
+  // We'll try to infer it from the file extension if it's application/octet-stream.
+  let finalMimeType = mimeType;
+  if (mimeType === "application/octet-stream" || !mimeType) {
+    const ext = filePath.split('.').pop()?.toLowerCase();
+    switch (ext) {
+      case 'jpg':
+      case 'jpeg': finalMimeType = 'image/jpeg'; break;
+      case 'png': finalMimeType = 'image/png'; break;
+      case 'webp': finalMimeType = 'image/webp'; break;
+      case 'heic': finalMimeType = 'image/heic'; break;
+      case 'heif': finalMimeType = 'image/heif'; break;
+      default: finalMimeType = 'image/jpeg'; // Fallback to jpeg for Gemini
+    }
+  }
+
+  const modelConfig = getModelConfig(modelId);
+  if (!modelConfig) {
+    throw new Error(`Invalid model ID: ${modelId}`);
+  }
+
+  console.log(`Processing with model: ${modelConfig.displayName} (${modelId})`);
+
+  const model = genAI.getGenerativeModel({
+    model: modelId
+  });
+
+  const filePart = {
+    inlineData: {
+      data: fs.readFileSync(filePath).toString("base64"),
+      mimeType: finalMimeType,
+    },
+  };
+
+  const prompt = `
+    Analyze this receipt image and extract the following information in JSON format:
+    1. Items (name and price). strictly numbers for price.
+    2. Total Amount
+    3. Currency (default INR)
+
+    Return ONLY raw JSON with no markdown formatting. Structure:
+    {
+      "items": [
+        { "name": "string", "price": number, "quantity": number }
+      ],
+      "total": number,
+      "currency": "string"
+    }
+  `;
+
+  // ✅ CHANGE 2: Add Safety Settings so receipts don't get blocked as "PII"
+  const safetySettings = [
+    { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+  ];
+
+  try {
+    const generationConfig = modelConfig.supportsJsonMode
+      ? { responseMimeType: "application/json" }
+      : undefined;
+
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [filePart, { text: prompt }] }],
+      safetySettings,
+      ...(generationConfig && { generationConfig }),
+    });
+
+    const response = await result.response;
+    const text = response.text();
+
+    console.log("Gemini Raw Response:", text); // Debug log
+
+    // Clean markdown if present
+    const jsonStr = text.replace(/```json/g, "").replace(/```/g, "").trim();
+    const parsedData = JSON.parse(jsonStr);
+
+    return {
+      data: parsedData,
+      modelUsed: modelId,
+    };
+
+  } catch (error: any) {
+    // ✅ CHANGE 3: Log the ACTUAL error so you can see it in VS Code/Terminal
+    console.error("🔥 FULL GEMINI ERROR:", JSON.stringify(error, null, 2));
+
+    // Check for quota issues and attempt fallback
+    if (error.status === 429 && attemptFallback) {
+      console.warn(`Quota exceeded for ${modelId}, attempting fallback...`);
+      const fallbackModel = getNextFallbackModel(modelId);
+
+      if (fallbackModel) {
+        console.log(`Falling back to ${fallbackModel.displayName}`);
+        return processReceiptImage(filePath, mimeType, fallbackModel.id, true);
+      } else {
+        throw new Error("Quota exceeded for all available models.");
+      }
+    }
+
+    throw new Error(`Failed to process receipt: ${error.message}${error.stack ? `\n${error.stack}` : ''}`);
+  }
+};

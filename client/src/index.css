@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Light Mode - Appwrite Inspired Clean & Vibrant */
+    --background: 0 0% 100%;
+    /* Pure white for maximum clarity */
+    --foreground: 222 47% 11%;
+    /* Very dark text for strong contrast */
+    --card: 0 0% 100%;
+    /* Pure white cards */
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    /* SOLID white - no transparency */
+    --popover-foreground: 222 47% 11%;
+    --primary: 343 100% 63%;
+    /* Vibrant Appwrite Pink #FD366E */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 96%;
+    /* Very light grey for subtle backgrounds */
+    --secondary-foreground: 222 47% 11%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 222 13% 46%;
+    --accent: 240 5% 96%;
+    /* Light grey for hover states */
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 6% 85%;
+    /* More visible borders */
+    --input: 240 6% 85%;
+    --ring: 343 100% 63%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Dark Mode - Deep Appwrite Dark */
+    --background: 240 10% 6%;
+    /* Deep dark #0E0E10 - Appwrite style */
+    --foreground: 0 0% 98%;
+    /* Near white for maximum contrast */
+    --card: 240 8% 10%;
+    /* Slightly elevated dark cards */
+    --card-foreground: 0 0% 98%;
+    --popover: 240 8% 10%;
+    /* SOLID dark - no transparency */
+    --popover-foreground: 0 0% 98%;
+    --primary: 343 100% 63%;
+    /* Vibrant Appwrite Pink */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 6% 14%;
+    /* Subtle dark grey */
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 6% 14%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 240 6% 14%;
+    /* Dark grey for hover */
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 63% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 6% 20%;
+    /* More visible borders in dark mode */
+    --input: 240 6% 20%;
+    --ring: 343 100% 63%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  /* Elegant scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 5px;
+    border: 2px solid hsl(var(--background));
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+
+  /* Smooth transitions */
+  * {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+}
