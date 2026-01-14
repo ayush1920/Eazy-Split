@@ -21,6 +21,7 @@ export interface ReceiptGroup {
     tax?: number;
     tip?: number; // or service charge
     currency: string;
+    _modelUsed?: string;
 }
 
 export interface SplitAssignment {

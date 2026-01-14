@@ -91,7 +91,14 @@ export function ReceiptGrid() {
                         <div className="bg-muted/30 p-4 flex justify-between items-center border-b border-border">
                             <div>
                                 <h3 className="font-semibold text-lg">{group.platform}</h3>
-                                <p className="text-sm text-muted-foreground">{group.date}</p>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-sm text-muted-foreground">{group.date}</span>
+                                    {group._modelUsed && (
+                                        <span className="text-[10px] font-mono bg-black/5 dark:bg-white/10 px-1.5 py-0.5 rounded border border-border/50 text-muted-foreground" title="AI Model Used">
+                                            model: {group._modelUsed}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                             <button
                                 onClick={() => deleteGroup(group.id)}

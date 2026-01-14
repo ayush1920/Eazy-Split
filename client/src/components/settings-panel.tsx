@@ -13,6 +13,7 @@ export function SettingsPanel() {
     const [isOpen, setIsOpen] = useState(false);
     const { theme } = useTheme();
     const [isDark, setIsDark] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const { models, preferences, setModels, setPreferences } = useModelStore();
 
@@ -35,6 +36,7 @@ export function SettingsPanel() {
     }, []);
 
     const loadData = async () => {
+        setLoading(true);
         try {
             const modelsData = await fetchAvailableModels();
             setModels(modelsData);
@@ -48,6 +50,8 @@ export function SettingsPanel() {
             }
         } catch (error) {
             console.error('Failed to load model data:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -126,17 +130,24 @@ export function SettingsPanel() {
                                 <label className={cn("block text-sm font-medium mb-2", isDark ? "text-gray-300" : "text-gray-700")}>
                                     Preferred Model
                                 </label>
-                                <Listbox value={preferences?.selectedModel || models[0]?.id} onChange={handleModelChange}>
+                                <Listbox
+                                    value={preferences?.selectedModel || models[0]?.id || ''}
+                                    onChange={handleModelChange}
+                                    disabled={loading || models.length === 0}
+                                >
                                     {({ open }) => (
                                         <div className="relative">
                                             <Listbox.Button
                                                 className={cn(
                                                     "w-full px-3 py-2 rounded-md border border-input text-sm focus:outline-none focus:ring-2 focus:ring-ring flex items-center justify-between",
-                                                    isDark ? "bg-zinc-800 text-gray-100" : "bg-white text-gray-900"
+                                                    isDark ? "bg-zinc-800 text-gray-100" : "bg-white text-gray-900",
+                                                    (loading || models.length === 0) && "opacity-50 cursor-not-allowed"
                                                 )}
                                             >
                                                 <span>
-                                                    {models.find(m => m.id === preferences?.selectedModel)?.displayName || 'Select model'}
+                                                    {loading ? "Loading models..." :
+                                                        models.length === 0 ? "No models found" :
+                                                            (models.find(m => m.id === (preferences?.selectedModel || models[0]?.id))?.displayName || 'Select model')}
                                                 </span>
                                                 <ChevronDown className={cn("w-4 h-4 transition-transform text-gray-500", open && "rotate-180")} />
                                             </Listbox.Button>

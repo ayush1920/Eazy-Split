@@ -6,13 +6,15 @@ const API_URL = `${API_BASE_URL}/api/ocr`;
 
 export async function uploadReceipt(file: File, selectedModel?: string, autoMode: boolean = true): Promise<ReceiptGroup & { _modelUsed?: string }> {
     const formData = new FormData();
-    formData.append('image', file);
     formData.append('autoMode', String(autoMode));
 
     // Add model preference if specified
     if (selectedModel) {
         formData.append('model', selectedModel);
     }
+
+    // Append file last to ensure text fields are parsed first by Multer
+    formData.append('image', file);
 
     const response = await fetch(API_URL, {
         method: 'POST',
