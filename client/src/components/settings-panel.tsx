@@ -72,12 +72,13 @@ export function SettingsPanel() {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
-                    "p-2 rounded-lg transition-colors",
-                    isDark ? "hover:bg-zinc-800" : "hover:bg-gray-100"
+                    "inline-flex justify-center items-center rounded-xl border-2 border-border bg-background p-2.5 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground hover:border-[#FD366E] focus:outline-none focus:ring-2 focus:ring-[#FD366E] focus:ring-offset-2 transition-all duration-200 group"
                 )}
                 aria-label="Settings"
             >
-                <Settings className={cn("w-5 h-5", isDark ? "text-gray-300" : "text-gray-700")} />
+                <div className="relative h-[1.2rem] w-[1.2rem]">
+                    <Settings className={cn("absolute inset-0 h-[1.2rem] w-[1.2rem] transition-all duration-300 group-hover:rotate-45")} />
+                </div>
             </button>
 
             {isOpen && createPortal(

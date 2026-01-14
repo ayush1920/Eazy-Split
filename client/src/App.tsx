@@ -1,7 +1,7 @@
 import { ThemeProvider } from "@/components/theme-provider"
 import { ModeToggle } from "@/components/mode-toggle"
-import { Github } from "lucide-react"
 import { SettingsPanel } from "@/components/settings-panel"
+import { Footer } from "@/components/footer"
 import { PeopleManager } from "@/components/people-manager"
 import { ReceiptGrid } from "@/components/receipt-grid"
 import { SplitPreview } from "@/components/split-preview"
@@ -27,15 +27,6 @@ function App() {
               <PeopleManager />
               <UploadModal />
               <SettingsPanel />
-              <a
-                href="https://github.com/ayush1920/Eazy-Split"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex justify-center items-center rounded-xl border-2 border-border bg-background p-2.5 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground hover:border-[#FD366E] focus:outline-none focus:ring-2 focus:ring-[#FD366E] focus:ring-offset-2 transition-all duration-200 group"
-                aria-label="View on GitHub"
-              >
-                <Github className="h-[1.2rem] w-[1.2rem]" />
-              </a>
               <ModeToggle />
             </div>
           </div>
@@ -49,6 +40,7 @@ function App() {
             <SplitPreview />
           </div>
         </main>
+        <Footer />
       </div>
     </ThemeProvider>
   )
