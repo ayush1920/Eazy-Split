@@ -1,6 +1,6 @@
 import { useState, Fragment, useEffect } from 'react';
 import { Dialog, Transition, Listbox } from '@headlessui/react';
-import { Upload, X, Loader2, CheckCircle, ChevronDown, Check, Trash2, ImageIcon } from 'lucide-react';
+import { Upload, X, Loader2, CheckCircle, ChevronDown, Check, Trash2, ImageIcon, Clipboard } from 'lucide-react';
 import { useTheme } from "@/components/theme-provider";
 import { useReceiptStore } from '@/store/useReceiptStore';
 import { useModelStore } from '@/store/useModelStore';
@@ -45,6 +45,64 @@ export function UploadModal() {
     }, [theme]);
 
     const { addGroup } = useReceiptStore();
+
+    // Paste Event Listener
+    useEffect(() => {
+        const handlePaste = (e: ClipboardEvent) => {
+            if (!isOpen || isProcessing) return;
+
+            const items = e.clipboardData?.items;
+            if (!items) return;
+
+            const imageFiles: File[] = [];
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const file = items[i].getAsFile();
+                    if (file) imageFiles.push(file);
+                }
+            }
+
+            if (imageFiles.length > 0) {
+                e.preventDefault(); // Prevent default paste behavior
+                addImagesToPreview(imageFiles);
+            }
+        };
+
+        window.addEventListener('paste', handlePaste);
+        return () => window.removeEventListener('paste', handlePaste);
+    }, [isOpen, isProcessing]);
+
+    const handlePasteClick = async () => {
+        try {
+            const clipboardItems = await navigator.clipboard.read();
+            const imageFiles: File[] = [];
+
+            for (const item of clipboardItems) {
+                // If it's an image, get the blob
+                const imageType = item.types.find(type => type.startsWith('image/'));
+                if (imageType) {
+                    const blob = await item.getType(imageType);
+                    // Convert blob to file
+                    const file = new File([blob], "pasted-image.png", { type: imageType });
+                    imageFiles.push(file);
+                }
+            }
+
+            if (imageFiles.length > 0) {
+                addImagesToPreview(imageFiles);
+            } else {
+                setError("No images found in clipboard");
+            }
+        } catch (err: any) {
+            console.error("Clipboard error:", err);
+            // Handle permission errors or no support
+            if (err.name === 'NotAllowedError') {
+                setError("Clipboard permission denied. Please allow access.");
+            } else {
+                setError("Could not read from clipboard. Try Ctrl+V instead.");
+            }
+        }
+    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -503,10 +561,33 @@ export function UploadModal() {
                                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                                         <Upload className={cn("w-10 h-10 mb-3", isDark ? "text-gray-400" : "text-gray-500")} />
                                                         <p className={cn("mb-2 text-sm", isDark ? "text-gray-400" : "text-gray-500")}>
-                                                            <span className="font-semibold">Click to upload</span>
+                                                            <span className="font-semibold">Click to upload</span> or drag and drop
                                                         </p>
-                                                        <p className={cn("text-xs", isDark ? "text-gray-400" : "text-gray-500")}>
+                                                        <p className={cn("text-xs mb-3", isDark ? "text-gray-400" : "text-gray-500")}>
                                                             Select one or multiple receipt images
+                                                        </p>
+
+                                                        {/* Paste Button for Mobile/Click Support */}
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                handlePasteClick();
+                                                            }}
+                                                            className={cn(
+                                                                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border",
+                                                                isDark
+                                                                    ? "bg-zinc-800 border-zinc-700 hover:bg-zinc-700 text-pink-400"
+                                                                    : "bg-pink-50 border-pink-100 hover:bg-pink-100 text-pink-600"
+                                                            )}
+                                                        >
+                                                            <Clipboard className="w-3.5 h-3.5" />
+                                                            Paste from Clipboard
+                                                        </button>
+
+                                                        <p className={cn("text-[10px] mt-2 opacity-60", isDark ? "text-gray-500" : "text-gray-400")}>
+                                                            or use Ctrl+V
                                                         </p>
                                                     </div>
                                                     <input

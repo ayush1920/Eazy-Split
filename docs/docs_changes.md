@@ -21,3 +21,17 @@
 ## 📝 Notes
 
 - The previous separate architecture docs in `client/docs/architecture.md` and `server/docs/architecture.md` were kept as they contain component-specific details, but `docs/architecture.md` now serves as the system-level entry point.
+
+---
+
+**Date**: 2026-01-15
+**Author**: Antigravity
+
+## 🆕 Files Added
+
+- `changelogs/v1.3.1/CHANGELOG.md`: Release notes for v1.3.1 (Clipboard Support).
+- `changelogs/v1.3.1/IMPLEMENTATION_SUMMARY.md`: Technical implementation details for Clipboard features.
+
+## 🔄 Files Updated
+
+- `client/docs/ui_components.md`: Added **Clipboard Support** details (Ctrl+V and Mobile Button) to `UploadModal` section and Recent Enhancements.

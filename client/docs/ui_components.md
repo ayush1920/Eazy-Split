@@ -38,6 +38,7 @@ Eazy Split uses React functional components with TypeScript, Headless UI for acc
 - OCR processing via server API
 - Manual item entry fallback
 - Loading states during OCR
+- **Clipboard Support**: Paste receipt images directly (Ctrl+V on desktop, dedicated button on mobile)
 
 **State**: Connected to `useReceiptStore`
 
@@ -129,6 +130,10 @@ Eazy Split uses React functional components with TypeScript, Headless UI for acc
 - **Smart Defaults**:
   - Date defaults to current browser date
   - Custom `Listbox` dropdown for platform selection
+- **Clipboard Integration**:
+  - Global Paste listener for desktop workflow
+  - Mobile-specific button using Clipboard API
+  - Auto-detection of image content types
 
 #### People Manager
 - **Interactive**: Add/Remove people with instant UI feedback
