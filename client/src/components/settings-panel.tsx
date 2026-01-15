@@ -74,7 +74,7 @@ export function SettingsPanel() {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
-                    "inline-flex justify-center items-center rounded-xl border-2 border-border bg-background p-2.5 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground hover:border-[#FD366E] focus:outline-none focus:ring-2 focus:ring-[#FD366E] focus:ring-offset-2 transition-all duration-200 group"
+                    "inline-flex justify-center items-center rounded-xl border-2 border-border bg-background p-2.5 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 group"
                 )}
                 aria-label="Settings"
             >
@@ -113,7 +113,7 @@ export function SettingsPanel() {
                                     onChange={handleAutoModeToggle}
                                     className={cn(
                                         "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
-                                        preferences?.autoMode ? "bg-[#FD366E]" : isDark ? "bg-zinc-700" : "bg-gray-300"
+                                        preferences?.autoMode ? "bg-primary" : isDark ? "bg-zinc-700" : "bg-gray-300"
                                     )}
                                 >
                                     <span
@@ -170,7 +170,7 @@ export function SettingsPanel() {
                                                             className={({ active }) =>
                                                                 cn(
                                                                     "cursor-pointer select-none relative py-2 pl-10 pr-4 transition-colors duration-150",
-                                                                    active ? "bg-[#FD366E] text-white" : cn("hover:bg-muted", isDark ? "text-gray-100" : "text-gray-900")
+                                                                    active ? "bg-primary text-primary-foreground" : cn("hover:bg-muted", isDark ? "text-gray-100" : "text-gray-900")
                                                                 )
                                                             }
                                                         >
@@ -180,7 +180,7 @@ export function SettingsPanel() {
                                                                         {model.displayName}
                                                                     </span>
                                                                     {selected && (
-                                                                        <span className={cn("absolute inset-y-0 left-0 flex items-center pl-3", active ? "text-white" : "text-[#FD366E]")}>
+                                                                        <span className={cn("absolute inset-y-0 left-0 flex items-center pl-3", active ? "text-primary-foreground" : "text-primary")}>
                                                                             <Check className="w-4 h-4" />
                                                                         </span>
                                                                     )}

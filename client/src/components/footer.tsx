@@ -11,7 +11,7 @@ export function Footer() {
                         href="https://github.com/ayush1920"
                         target="_blank"
                         rel="noreferrer"
-                        className="font-medium underline underline-offset-4 hover:text-[#FD366E] transition-colors"
+                        className="font-medium underline underline-offset-4 hover:text-primary transition-colors"
                     >
                         Ayush Kumar
                     </a>

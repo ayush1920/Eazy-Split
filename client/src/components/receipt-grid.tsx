@@ -86,7 +86,7 @@ export function ReceiptGrid() {
                         key={group.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="border-2 border-border rounded-xl bg-card text-card-foreground shadow-md hover:shadow-2xl hover:border-[#FD366E] transition-all duration-300 overflow-hidden"
+                        className="border-2 border-border rounded-xl bg-card text-card-foreground shadow-md hover:shadow-2xl hover:border-primary transition-all duration-300 overflow-hidden"
                     >
                         <div className="bg-muted/30 p-4 flex justify-between items-center border-b border-border">
                             <div>
@@ -102,7 +102,7 @@ export function ReceiptGrid() {
                             </div>
                             <button
                                 onClick={() => deleteGroup(group.id)}
-                                className="text-destructive hover:bg-[#EF4444] hover:text-white hover:scale-110 p-2 rounded-lg transition-all duration-200"
+                                className="text-destructive hover:bg-destructive hover:text-destructive-foreground hover:scale-110 p-3 rounded-lg transition-all duration-200"
                             >
                                 <Trash2 className="w-5 h-5" />
                             </button>
@@ -152,7 +152,7 @@ export function ReceiptGrid() {
                                                         type="checkbox"
                                                         checked={isChecked(item.id, 'ALL')}
                                                         onChange={() => toggleSplit(item.id, 'ALL')}
-                                                        className="w-5 h-5 rounded border-input text-primary focus:ring-ring cursor-pointer"
+                                                        className="w-6 h-6 rounded-md border-input text-primary focus:ring-ring cursor-pointer"
                                                     />
                                                 </td>
                                                 {people.map(p => (
@@ -162,7 +162,7 @@ export function ReceiptGrid() {
                                                             checked={isChecked(item.id, p.id)}
                                                             disabled={isChecked(item.id, 'ALL')}
                                                             onChange={() => toggleSplit(item.id, p.id)}
-                                                            className="w-5 h-5 rounded border-input text-primary focus:ring-ring disabled:opacity-30 cursor-pointer"
+                                                            className="w-6 h-6 rounded-md border-input text-primary focus:ring-ring disabled:opacity-30 cursor-pointer"
                                                         />
                                                     </td>
                                                 ))}

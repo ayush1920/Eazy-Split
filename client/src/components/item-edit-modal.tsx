@@ -97,7 +97,7 @@ export function ItemEditModal({ isOpen, onClose, item, onSave, onDelete }: ItemE
                                     <button
                                         onClick={onClose}
                                         className={cn(
-                                            "transition-colors",
+                                            "transition-colors p-2 rounded-lg hover:bg-muted",
                                             isDark ? "text-gray-400 hover:text-gray-200" : "text-gray-500 hover:text-gray-700"
                                         )}
                                     >
@@ -112,7 +112,7 @@ export function ItemEditModal({ isOpen, onClose, item, onSave, onDelete }: ItemE
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
                                             className={cn(
-                                                "w-full px-3 py-2 rounded-md border border-input text-sm focus:outline-none focus:ring-2 focus:ring-ring",
+                                                "w-full px-3 py-2 rounded-md border border-input text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-ring",
                                                 isDark ? "bg-zinc-800 text-gray-100" : "bg-white text-gray-900"
                                             )}
                                             autoFocus
@@ -125,7 +125,7 @@ export function ItemEditModal({ isOpen, onClose, item, onSave, onDelete }: ItemE
                                             value={price}
                                             onChange={(e) => setPrice(e.target.value)}
                                             className={cn(
-                                                "w-full px-3 py-2 rounded-md border border-input text-sm focus:outline-none focus:ring-2 focus:ring-ring",
+                                                "w-full px-3 py-2 rounded-md border border-input text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-ring",
                                                 isDark ? "bg-zinc-800 text-gray-100" : "bg-white text-gray-900"
                                             )}
                                         />
@@ -136,7 +136,7 @@ export function ItemEditModal({ isOpen, onClose, item, onSave, onDelete }: ItemE
                                             {onDelete && (
                                                 <button
                                                     onClick={handleDelete}
-                                                    className="px-4 py-2 bg-[#EF4444] text-white rounded-xl text-sm font-medium hover:bg-[#DC2626] transition-all duration-200"
+                                                    className="px-4 py-2 bg-destructive text-destructive-foreground rounded-xl text-sm font-medium hover:bg-destructive/90 transition-all duration-200"
                                                 >
                                                     Delete Item
                                                 </button>
@@ -154,7 +154,7 @@ export function ItemEditModal({ isOpen, onClose, item, onSave, onDelete }: ItemE
                                             </button>
                                             <button
                                                 onClick={handleSave}
-                                                className="px-4 py-2 bg-[#FD366E] text-white rounded-xl text-sm font-medium hover:bg-[#FD366E]/90 transition-all duration-200"
+                                                className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition-all duration-200"
                                             >
                                                 Save
                                             </button>
