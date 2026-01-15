@@ -497,24 +497,42 @@ export function UploadModal() {
 
                                                 {/* Add more images button */}
                                                 {!isProcessing && (
-                                                    <label
-                                                        htmlFor="add-more-files"
-                                                        className={cn(
-                                                            "flex items-center justify-center gap-2 w-full py-3 border-2 border-dashed rounded-lg cursor-pointer transition-all duration-200",
-                                                            isDark ? "border-gray-600 hover:border-primary hover:bg-primary/5 text-gray-400 hover:text-primary" : "border-gray-300 hover:border-primary hover:bg-primary/5 text-gray-500 hover:text-primary"
-                                                        )}
-                                                    >
-                                                        <ImageIcon className="w-4 h-4" />
-                                                        <span className="text-sm font-medium">Add More Images</span>
-                                                        <input
-                                                            id="add-more-files"
-                                                            type="file"
-                                                            className="hidden"
-                                                            accept="image/*"
-                                                            multiple
-                                                            onChange={handleFileChange}
-                                                        />
-                                                    </label>
+                                                    <div className="flex flex-col sm:flex-row gap-3">
+                                                        <label
+                                                            htmlFor="add-more-files"
+                                                            className={cn(
+                                                                "flex-1 flex items-center justify-center gap-2 py-3 border-2 border-dashed rounded-lg cursor-pointer transition-all duration-200",
+                                                                isDark ? "border-gray-600 hover:border-primary hover:bg-primary/5 text-gray-400 hover:text-primary" : "border-gray-300 hover:border-primary hover:bg-primary/5 text-gray-500 hover:text-primary"
+                                                            )}
+                                                        >
+                                                            <ImageIcon className="w-4 h-4" />
+                                                            <span className="text-sm font-medium">Add Images</span>
+                                                            <input
+                                                                id="add-more-files"
+                                                                type="file"
+                                                                className="hidden"
+                                                                accept="image/*"
+                                                                multiple
+                                                                onChange={handleFileChange}
+                                                            />
+                                                        </label>
+
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                handlePasteClick();
+                                                            }}
+                                                            className={cn(
+                                                                "flex-1 flex items-center justify-center gap-2 py-3 border-2 border-dashed rounded-lg cursor-pointer transition-all duration-200",
+                                                                isDark ? "border-gray-600 hover:border-pink-500 hover:bg-pink-500/5 text-pink-400" : "border-gray-300 hover:border-pink-500 hover:bg-pink-50/50 text-pink-600"
+                                                            )}
+                                                        >
+                                                            <Clipboard className="w-4 h-4" />
+                                                            <span className="text-sm font-medium">Paste Clipboard</span>
+                                                            <span className="hidden sm:inline text-xs opacity-50 ml-1">(Ctrl+V)</span>
+                                                        </button>
+                                                    </div>
                                                 )}
 
                                                 {/* Process button */}

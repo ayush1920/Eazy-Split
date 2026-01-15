@@ -26,6 +26,7 @@ Building onto the batch processing capabilities of v1.3.0, this release introduc
 **Impact**:
 - ✅ **Desktop Shortcut**: Press `Ctrl+V` (or Cmd+V) anywhere in the modal to instantly add images from your clipboard.
 - ✅ **Mobile Action**: New "Paste from Clipboard" button specifically designed for touch devices where keyboard shortcuts aren't available.
+- ✅ **Everywhere Access**: Paste button and `Ctrl+V` shortcut work in both initial upload and preview/review steps.
 - ✅ **Smart Filtering**: The system automatically detects image content in the clipboard and ignores text or other data types.
 - ✅ **Instant Preview**: Pasted images appear immediately in the batch processing queue.
 

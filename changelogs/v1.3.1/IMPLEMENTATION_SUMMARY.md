@@ -38,7 +38,7 @@ A dual-approach strategy was implemented to handle clipboard events across diffe
 - **Permissions**: Handles `NotAllowedError` gracefully by setting a user-friendly error message requesting access.
 
 ### 2. UI Updates
-- **Dropzone Area**: Added the new "Paste from Clipboard" button prominently in the upload area.
+- **Paste Button**: Added "Paste from Clipboard" button only next to "Add Images" in **both** Upload and Preview/Review steps.
 - **Instructional Text**: Added "Ctrl+V to paste" hint for desktop users.
 - **Iconography**: integrated `Clipboard` icon from `lucide-react` for the new button.
 
