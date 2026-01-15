@@ -38,8 +38,8 @@ export function SplitPreview() {
 
     return (
         <div className="w-full max-w-5xl mx-auto mt-8 mb-20 lg:mb-0 lg:sticky lg:top-24">
-            <div className="group bg-card border-2 border-border rounded-2xl p-6 shadow-lg hover:shadow-2xl hover:border-[#FD366E] transition-all duration-300">
-                <h3 className="font-bold mb-6 text-xl text-foreground group-hover:text-[#FD366E] transition-colors duration-300">Split Summary</h3>
+            <div className="group bg-card border-2 border-border rounded-2xl p-6 shadow-lg hover:shadow-2xl hover:border-primary transition-all duration-300">
+                <h3 className="font-bold mb-6 text-xl text-foreground group-hover:text-primary transition-colors duration-300">Split Summary</h3>
 
                 <div className="space-y-3">
                     {people.length === 0 && <p className="text-sm text-muted-foreground">Add people to see splits.</p>}
@@ -76,14 +76,14 @@ export function SplitPreview() {
                 <div className="grid grid-cols-2 gap-3 mt-8 pt-6 border-t border-border/50">
                     <button
                         onClick={handleCopy}
-                        className="flex items-center justify-center gap-2 px-4 py-3 bg-secondary hover:bg-[#FD366E] hover:text-white border-2 border-transparent text-secondary-foreground text-sm font-semibold rounded-xl transition-all duration-200 hover:scale-105 active:scale-[0.98] shadow-sm hover:shadow-lg"
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-secondary hover:bg-primary hover:text-primary-foreground border-2 border-transparent text-secondary-foreground text-sm font-semibold rounded-xl transition-all duration-200 hover:scale-105 active:scale-[0.98] shadow-sm hover:shadow-lg"
                     >
                         <Copy className="w-4 h-4" />
                         {copied ? 'Copied!' : 'Copy Text'}
                     </button>
                     <button
                         onClick={handleDownload}
-                        className="flex items-center justify-center gap-2 px-4 py-3 bg-secondary hover:bg-[#FD366E] hover:text-white border-2 border-transparent text-secondary-foreground text-sm font-semibold rounded-xl transition-all duration-200 hover:scale-105 active:scale-[0.98] shadow-sm hover:shadow-lg"
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-secondary hover:bg-primary hover:text-primary-foreground border-2 border-transparent text-secondary-foreground text-sm font-semibold rounded-xl transition-all duration-200 hover:scale-105 active:scale-[0.98] shadow-sm hover:shadow-lg"
                     >
                         <FileDown className="w-4 h-4" />
                         Export MD

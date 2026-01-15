@@ -100,7 +100,7 @@ export function UploadModal() {
         <>
             <button
                 onClick={() => setIsOpen(true)}
-                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 bg-primary text-primary-foreground rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-[#FD366E]/40 hover:bg-[#FD366E]/90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-sm font-semibold"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 bg-primary text-primary-foreground rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40 hover:bg-primary/90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-sm font-semibold"
             >
                 <Upload className="w-4 h-4" />
                 <span className="hidden sm:inline">Add Receipt</span>
@@ -147,7 +147,7 @@ export function UploadModal() {
                                             <button
                                                 onClick={closeModal}
                                                 className={cn(
-                                                    "transition-colors",
+                                                    "transition-colors p-2 rounded-lg hover:bg-muted",
                                                     isDark ? "text-gray-400 hover:text-gray-200" : "text-gray-500 hover:text-gray-700"
                                                 )}
                                             >
@@ -172,7 +172,7 @@ export function UploadModal() {
                                                                     {({ open }) => (
                                                                         <div className="relative">
                                                                             <Listbox.Button className={cn(
-                                                                                "w-full px-3 py-2 rounded-md border border-input text-sm focus:outline-none focus:ring-2 focus:ring-ring flex items-center justify-between",
+                                                                    "w-full px-3 py-2 rounded-md border border-input text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-ring flex items-center justify-between",
                                                                                 isDark ? "bg-zinc-800 text-gray-100" : "bg-white text-gray-900"
                                                                             )}>
                                                                                 <span>{group.platform}</span>
@@ -195,7 +195,7 @@ export function UploadModal() {
                                                                                             className={({ active }) =>
                                                                                                 cn(
                                                                                                     "cursor-pointer select-none relative py-2 pl-10 pr-4 transition-colors duration-150",
-                                                                                                    active ? "bg-[#FD366E] text-white" : cn("hover:bg-muted", isDark ? "text-gray-100" : "text-gray-900")
+                                                                                                    active ? "bg-primary text-primary-foreground" : cn("hover:bg-muted", isDark ? "text-gray-100" : "text-gray-900")
                                                                                                 )
                                                                                             }
                                                                                         >
@@ -205,7 +205,7 @@ export function UploadModal() {
                                                                                                         {platform}
                                                                                                     </span>
                                                                                                     {selected && (
-                                                                                                        <span className={cn("absolute inset-y-0 left-0 flex items-center pl-3", active ? "text-white" : "text-[#FD366E]")}>
+                                                                                                        <span className={cn("absolute inset-y-0 left-0 flex items-center pl-3", active ? "text-primary-foreground" : "text-primary")}>
                                                                                                             <Check className="w-4 h-4" />
                                                                                                         </span>
                                                                                                     )}
@@ -227,7 +227,7 @@ export function UploadModal() {
                                                                     onChange={(e) => updatePendingGroup(index, 'date', e.target.value)}
                                                                     onClick={(e) => e.currentTarget.showPicker?.()}
                                                                     className={cn(
-                                                                        "w-full px-3 py-2 rounded-md border border-input text-sm focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer",
+                                                                        "w-full px-3 py-2 rounded-md border border-input text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer",
                                                                         isDark ? "bg-zinc-800 text-gray-100" : "bg-white text-gray-900"
                                                                     )}
                                                                 />
@@ -240,7 +240,7 @@ export function UploadModal() {
                                                     <button
                                                         onClick={closeModal}
                                                         className={cn(
-                                                            "px-4 py-2 border border-border rounded-xl text-sm font-medium hover:bg-muted hover:border-[#FD366E] hover:text-[#FD366E] transition-all duration-200",
+                                                            "px-4 py-2 border border-border rounded-xl text-sm font-medium hover:bg-muted hover:border-primary hover:text-primary transition-all duration-200",
                                                             isDark ? "text-gray-300" : "text-gray-700"
                                                         )}
                                                     >
@@ -248,7 +248,7 @@ export function UploadModal() {
                                                     </button>
                                                     <button
                                                         onClick={handleSave}
-                                                        className="px-4 py-2 bg-[#FD366E] text-white rounded-xl text-sm font-bold hover:bg-[#FD366E]/90 hover:shadow-lg hover:shadow-[#FD366E]/25 transition-all duration-200"
+                                                        className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-bold hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25 transition-all duration-200"
                                                     >
                                                         Save All
                                                     </button>
