@@ -10,16 +10,21 @@ router.get('/', (req, res) => {
 });
 
 // Get current model preference
-router.get('/current', (req, res) => {
-    const preferences = getPreferences();
-    res.json({
-        selectedModel: preferences.selectedModel || DEFAULT_MODEL,
-        autoMode: preferences.autoMode ?? true,
-    });
+router.get('/current', async (req, res) => {
+    try {
+        const preferences = await getPreferences();
+        res.json({
+            selectedModel: preferences.selectedModel || DEFAULT_MODEL,
+            autoMode: preferences.autoMode ?? true,
+        });
+    } catch (error: any) {
+        console.error('Error in /api/models/current:', error);
+        res.status(500).json({ error: error.message || 'Internal server error' });
+    }
 });
 
 // Set model preference
-router.post('/select', (req, res) => {
+router.post('/select', async (req, res) => {
     try {
         const { model, autoMode } = req.body;
 
@@ -27,7 +32,7 @@ router.post('/select', (req, res) => {
             return res.status(400).json({ error: 'Invalid model ID' });
         }
 
-        const preferences = getPreferences();
+        const preferences = await getPreferences();
 
         if (model !== undefined) {
             preferences.selectedModel = model;
@@ -37,7 +42,7 @@ router.post('/select', (req, res) => {
             preferences.autoMode = autoMode;
         }
 
-        savePreferences(preferences);
+        await savePreferences(preferences);
 
         res.json({
             selectedModel: preferences.selectedModel || DEFAULT_MODEL,
