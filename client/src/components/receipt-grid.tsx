@@ -147,23 +147,38 @@ export function ReceiptGrid() {
                                                 >
                                                     {item.price}
                                                 </td>
-                                                <td className="px-2 py-2 sm:px-4 sm:py-3 text-center">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={isChecked(item.id, 'ALL')}
-                                                        onChange={() => toggleSplit(item.id, 'ALL')}
-                                                        className="w-6 h-6 rounded-md border-input text-primary focus:ring-ring cursor-pointer"
-                                                    />
-                                                </td>
-                                                {people.map(p => (
-                                                    <td key={p.id} className="px-2 py-2 sm:px-4 sm:py-3 text-center">
+                                                {/* Mobile: full cell clickable, Desktop: normal checkbox */}
+                                                <td
+                                                    className="px-2 py-3 sm:px-4 sm:py-3 text-center cursor-pointer sm:cursor-default active:bg-accent/20 sm:active:bg-transparent transition-colors select-none"
+                                                    onClick={() => toggleSplit(item.id, 'ALL')}
+                                                >
+                                                    <div className="flex items-center justify-center min-h-[32px] sm:min-h-0 min-w-[32px] sm:min-w-0">
                                                         <input
                                                             type="checkbox"
-                                                            checked={isChecked(item.id, p.id)}
-                                                            disabled={isChecked(item.id, 'ALL')}
-                                                            onChange={() => toggleSplit(item.id, p.id)}
-                                                            className="w-6 h-6 rounded-md border-input text-primary focus:ring-ring disabled:opacity-30 cursor-pointer"
+                                                            checked={isChecked(item.id, 'ALL')}
+                                                            onChange={() => { }}
+                                                            className="w-4 h-4 sm:w-5 sm:h-5 rounded border-input text-primary focus:ring-ring pointer-events-none sm:pointer-events-auto sm:cursor-pointer"
                                                         />
+                                                    </div>
+                                                </td>
+                                                {people.map(p => (
+                                                    <td
+                                                        key={p.id}
+                                                        className={`px-2 py-3 sm:px-4 sm:py-3 text-center cursor-pointer sm:cursor-default transition-colors select-none ${isChecked(item.id, 'ALL')
+                                                                ? 'opacity-40 cursor-not-allowed'
+                                                                : 'active:bg-accent/20 sm:active:bg-transparent'
+                                                            }`}
+                                                        onClick={() => !isChecked(item.id, 'ALL') && toggleSplit(item.id, p.id)}
+                                                    >
+                                                        <div className="flex items-center justify-center min-h-[32px] sm:min-h-0 min-w-[32px] sm:min-w-0">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={isChecked(item.id, p.id)}
+                                                                disabled={isChecked(item.id, 'ALL')}
+                                                                onChange={() => { }}
+                                                                className="w-4 h-4 sm:w-5 sm:h-5 rounded border-input text-primary focus:ring-ring disabled:opacity-30 pointer-events-none sm:pointer-events-auto sm:cursor-pointer"
+                                                            />
+                                                        </div>
                                                     </td>
                                                 ))}
                                             </motion.tr>
