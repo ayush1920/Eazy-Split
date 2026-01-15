@@ -2,14 +2,32 @@ import { useEffect, useState } from 'react';
 import { useReceiptStore } from '@/store/useReceiptStore';
 import { usePeopleStore } from '@/store/usePeopleStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, Plus, Pencil } from 'lucide-react';
+import { Trash2, Plus, Pencil, Upload } from 'lucide-react';
 import type { ReceiptGroup, Item } from '@/types';
 import { ItemEditModal } from './item-edit-modal';
+import { useTheme } from '@/components/theme-provider';
+import { cn } from '@/lib/utils';
 
 export function ReceiptGrid() {
     const { groups, splits, updateGroup, deleteGroup, updateSplit, loadReceipts } = useReceiptStore();
     const { people } = usePeopleStore();
     const [editingItem, setEditingItem] = useState<{ group: ReceiptGroup, item: Item, isNewItem?: boolean } | null>(null);
+    const { theme } = useTheme();
+    const [isDark, setIsDark] = useState(false);
+
+    useEffect(() => {
+        const checkTheme = () => {
+            if (theme === 'system') {
+                setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches);
+            } else {
+                setIsDark(theme === 'dark');
+            }
+        };
+        checkTheme();
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        mediaQuery.addEventListener('change', checkTheme);
+        return () => mediaQuery.removeEventListener('change', checkTheme);
+    }, [theme]);
 
     useEffect(() => {
         loadReceipts();
@@ -77,9 +95,23 @@ export function ReceiptGrid() {
     return (
         <div className="space-y-8 w-full max-w-5xl mx-auto pb-20">
             {groups.length === 0 ? (
-                <div className="text-center py-20 border-2 border-dashed border-border rounded-xl">
-                    <p className="text-muted-foreground">No receipts uploaded yet.</p>
-                </div>
+                <button
+                    onClick={() => {
+                        // Trigger the Add Receipt button
+                        const uploadBtn = document.querySelector('button:has(svg.lucide-upload)') as HTMLButtonElement;
+                        uploadBtn?.click();
+                    }}
+                    className={cn(
+                        "w-full text-center py-20 border-2 border-dashed rounded-xl transition-all duration-300 cursor-pointer group",
+                        isDark
+                            ? "bg-zinc-900/50 border-gray-700 hover:bg-zinc-800 hover:border-pink-500"
+                            : "bg-transparent border-gray-300 hover:bg-pink-50 hover:border-pink-500"
+                    )}
+                >
+                    <Upload className="w-12 h-12 mx-auto mb-3 text-muted-foreground group-hover:text-pink-500 transition-colors" />
+                    <p className="text-muted-foreground group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors font-medium">No receipts uploaded yet.</p>
+                    <p className="text-sm text-muted-foreground mt-2 group-hover:text-pink-500 transition-colors">Click to upload</p>
+                </button>
             ) : (
                 groups.map((group) => (
                     <motion.div
@@ -157,7 +189,7 @@ export function ReceiptGrid() {
                                                             type="checkbox"
                                                             checked={isChecked(item.id, 'ALL')}
                                                             onChange={() => { }}
-                                                            className="w-4 h-4 sm:w-5 sm:h-5 rounded border-input text-primary focus:ring-ring pointer-events-none sm:pointer-events-auto sm:cursor-pointer"
+                                                            className="w-4 h-4 sm:w-5 sm:h-5 rounded border-input text-primary focus:ring-ring pointer-events-none sm:pointer-events-auto sm:cursor-pointer transition-transform duration-200 hover:scale-110"
                                                         />
                                                     </div>
                                                 </td>
@@ -165,8 +197,8 @@ export function ReceiptGrid() {
                                                     <td
                                                         key={p.id}
                                                         className={`px-2 py-3 sm:px-4 sm:py-3 text-center cursor-pointer sm:cursor-default transition-colors select-none ${isChecked(item.id, 'ALL')
-                                                                ? 'opacity-40 cursor-not-allowed'
-                                                                : 'active:bg-accent/20 sm:active:bg-transparent'
+                                                            ? 'opacity-40 cursor-not-allowed'
+                                                            : 'active:bg-accent/20 sm:active:bg-transparent'
                                                             }`}
                                                         onClick={() => !isChecked(item.id, 'ALL') && toggleSplit(item.id, p.id)}
                                                     >
@@ -176,7 +208,7 @@ export function ReceiptGrid() {
                                                                 checked={isChecked(item.id, p.id)}
                                                                 disabled={isChecked(item.id, 'ALL')}
                                                                 onChange={() => { }}
-                                                                className="w-4 h-4 sm:w-5 sm:h-5 rounded border-input text-primary focus:ring-ring disabled:opacity-30 pointer-events-none sm:pointer-events-auto sm:cursor-pointer"
+                                                                className="w-4 h-4 sm:w-5 sm:h-5 rounded border-input text-primary focus:ring-ring disabled:opacity-30 pointer-events-none sm:pointer-events-auto sm:cursor-pointer transition-transform duration-200 hover:scale-110"
                                                             />
                                                         </div>
                                                     </td>

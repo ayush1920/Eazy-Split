@@ -1,7 +1,7 @@
 import { useState, useEffect, Fragment } from 'react';
 import { createPortal } from 'react-dom';
 import { Listbox, Transition, Switch } from '@headlessui/react';
-import { Settings, ChevronDown, Check } from 'lucide-react';
+import { Settings, ChevronDown } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
 import { useModelStore } from '@/store/useModelStore';
 import {
@@ -73,13 +73,11 @@ export function SettingsPanel() {
         <>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={cn(
-                    "inline-flex justify-center items-center rounded-xl border-2 border-border bg-background p-2.5 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 group"
-                )}
+                className="inline-flex justify-center items-center group border-2 border-gray-300 dark:border-gray-600 rounded-xl px-4 py-2 font-medium text-sm hover:border-pink-500 hover:bg-pink-50 dark:hover:bg-pink-500/10 hover:text-pink-600 dark:hover:text-pink-400 active:scale-[0.98] transition-all duration-300"
                 aria-label="Settings"
             >
                 <div className="relative h-[1.2rem] w-[1.2rem]">
-                    <Settings className={cn("absolute inset-0 h-[1.2rem] w-[1.2rem] transition-all duration-300 group-hover:rotate-45")} />
+                    <Settings className="absolute inset-0 h-[1.2rem] w-[1.2rem] transition-transform duration-300 group-hover:rotate-45" />
                 </div>
             </button>
 
@@ -105,20 +103,24 @@ export function SettingsPanel() {
                         <div className="space-y-4">
                             {/* Auto Mode Toggle */}
                             <div className="flex items-center justify-between">
-                                <span className={cn("text-sm font-medium", isDark ? "text-gray-300" : "text-gray-700")}>
+                                <span className={cn("text-sm font-medium", isDark ? "text-gray-200" : "text-gray-900")}>
                                     Auto Fallback
                                 </span>
                                 <Switch
                                     checked={preferences?.autoMode ?? true}
                                     onChange={handleAutoModeToggle}
                                     className={cn(
-                                        "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
-                                        preferences?.autoMode ? "bg-primary" : isDark ? "bg-zinc-700" : "bg-gray-300"
+                                        "relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200",
+                                        preferences?.autoMode
+                                            ? "bg-pink-500"
+                                            : isDark
+                                                ? "bg-gray-700"
+                                                : "bg-gray-300"
                                     )}
                                 >
                                     <span
                                         className={cn(
-                                            "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+                                            "inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200",
                                             preferences?.autoMode ? "translate-x-6" : "translate-x-1"
                                         )}
                                     />
@@ -159,32 +161,33 @@ export function SettingsPanel() {
                                             >
                                                 <Listbox.Options
                                                     className={cn(
-                                                        "absolute z-10 mt-1 w-full border-2 border-border rounded-lg shadow-2xl max-h-60 overflow-auto focus:outline-none text-sm",
-                                                        isDark ? "bg-zinc-900" : "bg-white"
+                                                        "absolute z-10 mt-1 w-full border-2 rounded-lg shadow-2xl max-h-60 overflow-auto focus:outline-none text-sm",
+                                                        isDark ? "bg-zinc-900 border-gray-700" : "bg-white border-gray-200"
                                                     )}
                                                 >
                                                     {models.map((model) => (
                                                         <Listbox.Option
                                                             key={model.id}
                                                             value={model.id}
-                                                            className={({ active }) =>
+                                                            className={({ active, selected }) =>
                                                                 cn(
-                                                                    "cursor-pointer select-none relative py-2 pl-10 pr-4 transition-colors duration-150",
-                                                                    active ? "bg-primary text-primary-foreground" : cn("hover:bg-muted", isDark ? "text-gray-100" : "text-gray-900")
+                                                                    "relative cursor-pointer select-none py-3 pl-4 pr-4 transition-all duration-200",
+                                                                    selected
+                                                                        ? "bg-pink-500 text-white font-semibold"
+                                                                        : active
+                                                                            ? isDark
+                                                                                ? "bg-pink-500/20 text-pink-300"
+                                                                                : "bg-pink-100 text-pink-700"
+                                                                            : isDark
+                                                                                ? "text-gray-300"
+                                                                                : "text-gray-700"
                                                                 )
                                                             }
                                                         >
-                                                            {({ selected, active }) => (
-                                                                <>
-                                                                    <span className={cn("block truncate", selected ? "font-bold" : "font-normal")}>
-                                                                        {model.displayName}
-                                                                    </span>
-                                                                    {selected && (
-                                                                        <span className={cn("absolute inset-y-0 left-0 flex items-center pl-3", active ? "text-primary-foreground" : "text-primary")}>
-                                                                            <Check className="w-4 h-4" />
-                                                                        </span>
-                                                                    )}
-                                                                </>
+                                                            {() => (
+                                                                <span className="block truncate">
+                                                                    {model.displayName}
+                                                                </span>
                                                             )}
                                                         </Listbox.Option>
                                                     ))}

@@ -3,11 +3,28 @@ import { usePeopleStore } from '@/store/usePeopleStore';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { X, Plus, User } from 'lucide-react';
+import { useTheme } from '@/components/theme-provider';
 
 export function PeopleManager() {
     const { people, addPerson, removePerson, loadPeople } = usePeopleStore();
     const [isOpen, setIsOpen] = useState(false);
     const [newName, setNewName] = useState('');
+    const { theme } = useTheme();
+    const [isDark, setIsDark] = useState(false);
+
+    useEffect(() => {
+        const checkTheme = () => {
+            if (theme === 'system') {
+                setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches);
+            } else {
+                setIsDark(theme === 'dark');
+            }
+        };
+        checkTheme();
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        mediaQuery.addEventListener('change', checkTheme);
+        return () => mediaQuery.removeEventListener('change', checkTheme);
+    }, [theme]);
 
     useEffect(() => {
         loadPeople();
@@ -16,7 +33,14 @@ export function PeopleManager() {
     const handleAdd = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newName.trim()) return;
-        await addPerson(newName.trim());
+
+        // Capitalize first letter of each word
+        const capitalizedName = newName.trim()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+
+        await addPerson(capitalizedName);
         setNewName('');
     };
 
@@ -24,7 +48,10 @@ export function PeopleManager() {
         <>
             <button
                 onClick={() => setIsOpen(true)}
-                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 bg-primary text-primary-foreground rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40 hover:bg-primary/90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-sm font-semibold"
+                className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 text-sm font-semibold border-2 ${isDark
+                        ? 'bg-gray-800 text-gray-100 border-gray-700 hover:bg-gray-700'
+                        : 'bg-gray-100 text-gray-900 border-gray-200 hover:bg-gray-200'
+                    }`}
             >
                 <User className="w-4 h-4" />
                 <span className="hidden sm:inline">Manage People</span>
@@ -55,7 +82,7 @@ export function PeopleManager() {
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-background p-6 text-left align-middle shadow-xl transition-all border border-border">
+                                <Dialog.Panel className={`w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-2xl transition-all border-2 ${isDark ? 'bg-zinc-900 border-gray-700' : 'bg-white border-gray-200'}`}>
                                     <Dialog.Title
                                         as="h3"
                                         className="text-lg font-medium leading-6 text-foreground flex justify-between items-center"
