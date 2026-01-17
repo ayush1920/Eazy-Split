@@ -191,57 +191,57 @@ function sanitizeParsedData(data: any): any {
   enforceNegatives(data.other_charges);
 
   // 2. Mathematical Verification for Round Off
-  // We calculate the sum of all items and see if flipping the Round Off sign brings us closer to the Total.
+  // We calculate the sum of all items (excluding Round Off) and determine the exact residual needed to match Total.
 
   const total = getVal(data.total);
   // If total is 0 or missing, we can't verify math.
   if (total === 0) return data;
 
-  let currentSum = 0;
+  let sumExcludingRoundOff = 0;
   let roundOffItem: any = null;
-  let roundOffListType: 'items' | 'other_charges' | null = null;
 
   // Helper to sum list
-  const sumList = (list: any[], type: 'items' | 'other_charges') => {
+  const sumList = (list: any[]) => {
     if (!Array.isArray(list)) return;
     list.forEach(item => {
-      const price = getVal(item.price !== undefined ? item.price : item.amount);
-      const qty = getVal(item.quantity) || 1;
-      currentSum += (price * qty);
-
-      // Check if this is the round off item
       const name = (item.name || '').toLowerCase();
-      if (roundOffKeywords.some(k => name.includes(k))) {
+      const isRoundOff = roundOffKeywords.some(k => name.includes(k));
+      const val = getVal(item.price !== undefined ? item.price : item.amount);
+      const qty = getVal(item.quantity) || 1;
+
+      if (isRoundOff) {
         roundOffItem = item;
-        roundOffListType = type;
+      } else {
+        sumExcludingRoundOff += (val * qty);
       }
     });
   };
 
-  sumList(data.items, 'items');
-  sumList(data.other_charges, 'other_charges');
+  sumList(data.items);
+  sumList(data.other_charges);
 
-  // If no round off item found, we are done
+  // If no round off item found, we can't adjust it.
   if (!roundOffItem) return data;
 
-  const currentDiff = Math.abs(currentSum - total);
+  // Calculate what the Round Off SHOULD be to make the math perfect
+  // Total = SumOthers + RoundOff
+  // RoundOff = Total - SumOthers
+  const expectedRoundOff = total - sumExcludingRoundOff;
 
-  // If the difference is negligible, we are good
-  if (currentDiff < 0.01) return data;
+  // Safety: Only apply correction if the adjustment is small (e.g. < 1.0 unit).
+  // If the discrepancy is large, it's likely a missing item, not a round off error.
+  if (Math.abs(expectedRoundOff) < 1.0) {
+    // We allow a small epsilon for floating point matches, but generally we force the exact residual.
+    // This handles +0.01, -0.01, and 0.00 cases.
 
-  // Try flipping the round off item
-  const originalVal = getVal(roundOffItem.price !== undefined ? roundOffItem.price : roundOffItem.amount);
-  const flippedVal = -originalVal;
+    const currentVal = getVal(roundOffItem.price !== undefined ? roundOffItem.price : roundOffItem.amount);
 
-  const qty = getVal(roundOffItem.quantity) || 1;
-  const newSum = currentSum - (originalVal * qty) + (flippedVal * qty);
-  const newDiff = Math.abs(newSum - total);
-
-  // If flipping makes the sum match the total (better than before), apply the flip
-  if (newDiff < currentDiff) {
-    console.log(`Auto-Correcting Round Off: Flipped ${originalVal} to ${flippedVal} to match Total ${total}`);
-    if (roundOffItem.price !== undefined) roundOffItem.price = flippedVal;
-    if (roundOffItem.amount !== undefined) roundOffItem.amount = flippedVal;
+    // Only update if there's a meaningful difference (ignore tiny float noise)
+    if (Math.abs(currentVal - expectedRoundOff) > 0.001) {
+      console.log(`Auto-Correcting Round Off: Changed ${currentVal} to ${expectedRoundOff.toFixed(2)} to match Total ${total}`);
+      if (roundOffItem.price !== undefined) roundOffItem.price = Number(expectedRoundOff.toFixed(2));
+      if (roundOffItem.amount !== undefined) roundOffItem.amount = Number(expectedRoundOff.toFixed(2));
+    }
   }
 
   return data;

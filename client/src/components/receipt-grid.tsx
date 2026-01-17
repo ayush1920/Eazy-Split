@@ -147,7 +147,7 @@ export function ReceiptGrid() {
                                 <thead className="text-xs text-muted-foreground uppercase bg-muted/10">
                                     <tr>
                                         <th className="px-4 py-3 min-w-[150px]">Item</th>
-                                        <th className="px-4 py-3 w-[100px]">Price</th>
+                                        <th className="px-4 py-3 w-[100px] text-right">Price</th>
                                         <th className="px-4 py-3 w-[60px] text-center">All</th>
                                         {people.map(p => (
                                             <th key={p.id} className="px-4 py-3 w-[60px] text-center">
