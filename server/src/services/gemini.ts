@@ -43,13 +43,17 @@ export const processReceiptImage = async (
   const prompt = `
     Analyze this receipt image and extract the following information in JSON format:
     1. Items (name and price). strictly numbers for price.
-    2. Total Amount
-    3. Currency (default INR)
+    2. Other charges (name and amount) like handling charge, platform fees, taxes, etc.
+    3. Total Amount
+    4. Currency (default INR)
 
     Return ONLY raw JSON with no markdown formatting. Structure:
     {
       "items": [
         { "name": "string", "price": number, "quantity": number }
+      ],
+      "other_charges": [
+        { "name": "string", "amount": number }
       ],
       "total": number,
       "currency": "string"
