@@ -71,7 +71,9 @@ export function ReceiptGrid() {
 
         if (personId === 'ALL') {
             newIsAll = !newIsAll;
-            newPersonIds = [];
+            // If unchecking ALL, select everyone individually by default
+            // giving the user a starting point where they can just uncheck the one person they want to exclude
+            newPersonIds = newIsAll ? [] : people.map(p => p.id);
         } else {
             newIsAll = false;
             if (newPersonIds.includes(personId)) {
