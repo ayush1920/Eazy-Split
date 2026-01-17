@@ -61,12 +61,11 @@ export const processReceiptImage = async (
     2. **Compare with Printed Total:**
        Check if Calculated Sum == Printed Total.
 
-    3. **HANDLE ROUND OFF / ADJUSTMENTS:**
-       - "Round Off" or "Rounding" items are frequently SUBTRACTED even if they appear as positive numbers (e.g., 0.01).
-       - IF (Calculated Sum > Printed Total) AND (Calculated Sum - Printed Total matches the Round Off amount):
-         -> YOU MUST RETURN THE ROUND OFF AMOUNT AS NEGATIVE (e.g., -0.01).
-       - IF (Calculated Sum < Printed Total):
-         -> The Round Off is likely positive.
+    3. **HANDLE ROUND OFF / ADJUSTMENTS (Equation Balancing):**
+       - The "Round Off" or "Rounding" item is the balancing variable.
+       - You MUST ensure that: (Sum of all Item Prices * Quantity) + (Sum of all Other Charges) + (Round Off) = Total Amount.
+       - If the numbers don't add up, adjust the SIGN (positive or negative) of the Round Off item to make the equation true.
+       - Example: If Sum is 100.05 and Total is 100.00, the Round Off MUST be -0.05.
 
     4. **Handle Discounts:**
        - Any item labeled "Discount", "Savings", or appearing in parentheses "(...)" is NEGATIVE.
@@ -162,7 +161,7 @@ export const processReceiptImage = async (
  * - Enforces negative signs for discounts.
  * - Mathematically determines if "Round Off" should be negative based on the Total.
  */
-function sanitizeParsedData(data: any): any {
+export function sanitizeParsedData(data: any): any {
   // Helper to ensure we have a number
   const getVal = (val: any) => {
     if (typeof val === 'number') return val;
@@ -170,16 +169,19 @@ function sanitizeParsedData(data: any): any {
     return 0;
   };
 
-  const discountKeywords = ['discount', 'saving', 'coupon', 'promo', 'off', 'less'];
+  // Use regex with word boundaries to avoid false positives (e.g. "Coffee" matching "off")
+  const discountRegex = /\b(discount|savings?|coupon|promo|off|less)\b/i;
   const roundOffKeywords = ['round off', 'rounding', 'roundoff', 'adjustment'];
 
   // 1. First Pass: Enforce Negative Signs on explicit Discounts
   const enforceNegatives = (list: any[]) => {
     if (!Array.isArray(list)) return;
     list.forEach(item => {
-      const name = (item.name || '').toLowerCase();
-      // Check if it's a discount
-      if (discountKeywords.some(k => name.includes(k))) {
+      const name = (item.name || '');
+      // Check if it's a discount, but IGNORE "Round Off" which might contain "off"
+      const isRoundOff = roundOffKeywords.some(k => name.toLowerCase().includes(k));
+
+      if (discountRegex.test(name) && !isRoundOff) {
         // If price/amount is positive, flip it
         if (item.price !== undefined && getVal(item.price) > 0) item.price = -getVal(item.price);
         if (item.amount !== undefined && getVal(item.amount) > 0) item.amount = -getVal(item.amount);
