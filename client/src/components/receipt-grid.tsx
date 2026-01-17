@@ -176,10 +176,15 @@ export function ReceiptGrid() {
                                                     <Pencil className="w-3 h-3 opacity-0 group-hover/row:opacity-100 text-muted-foreground" />
                                                 </td>
                                                 <td
-                                                    className="px-2 py-2 sm:px-4 sm:py-3 cursor-pointer hover:text-primary transition-colors font-mono text-right"
+                                                    className={cn(
+                                                        "px-2 py-2 sm:px-4 sm:py-3 cursor-pointer transition-colors font-mono text-right",
+                                                        item.price < 0
+                                                            ? "text-green-600 dark:text-green-400 font-medium"
+                                                            : "hover:text-primary"
+                                                    )}
                                                     onClick={() => setEditingItem({ group, item })}
                                                 >
-                                                    {item.price}
+                                                    {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}
                                                 </td>
                                                 {/* Mobile: full cell clickable, Desktop: normal checkbox */}
                                                 <td
