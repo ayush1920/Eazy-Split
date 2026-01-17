@@ -43,12 +43,27 @@ export const processReceiptImage = async (
     },
   };
 
-  const IMAGE_PROMPT = `
-    Analyze this receipt image and extract the following information in JSON format:
-    1. Items (name and price). strictly numbers for price.
-    2. Other charges (name and amount) like handling charge, platform fees, taxes, etc.
+  const COMMON_INSTRUCTIONS = `
+    Extract the following information in JSON format:
+    1. Items (name, price, quantity). Strictly numbers for price.
+    2. Other charges (name and amount) like handling charge, platform fees, taxes, delivery charges, packaging charges, etc.
     3. Total Amount
     4. Currency (default INR)
+
+    CRITICAL INSTRUCTIONS FOR NEGATIVE VALUES & MATHEMATICAL VERIFICATION:
+    1. **Identify Negative Items:** Look for discounts, returns, "Round Off", or adjustments.
+       - If a value is in parentheses like "(0.01)" or has a minus sign "-0.01", IT IS NEGATIVE.
+       - "Round Off" can be positive or negative. Check the math!
+
+    2. **Mathematical Verification (Mental Step):**
+       - Sum all extracted items and other charges.
+       - Compare the sum with the "Total Amount" printed on the receipt.
+       - If Sum > Total Amount, then one or more items (likely Round Off or Discount) MUST be negative.
+       - Example: If Items Sum = 100.01 and Total = 100.00, then Round Off 0.01 must be **-0.01**.
+
+    3. **Output Correction:**
+       - Ensure that any subtracted amount is returned as a NEGATIVE number (e.g., -50, -0.01).
+       - Do NOT return a positive price for an item that subtracts from the total.
 
     Return ONLY raw JSON with no markdown formatting. Structure:
     {
@@ -63,32 +78,14 @@ export const processReceiptImage = async (
     }
   `;
 
+  const IMAGE_PROMPT = `
+    Analyze this receipt image.
+    ${COMMON_INSTRUCTIONS}
+  `;
+
   const PDF_PROMPT = `
-    Analyze this PDF voucher (likely from Zepto, Blinkit, DMart, Amazon, or similar) and extract the following information in JSON format:
-    1. Items (name, price per unit, and quantity). Strictly numbers for price.
-    2. Other charges (name and amount) like handling charge, platform fees, taxes, delivery charges, packaging charges, etc.
-    3. Total Amount
-    4. Currency (default INR)
-
-    IMPORTANT HANDLING FOR ROUNDING AND DISCOUNTS:
-    - Look carefully for "Round Off" or "Rounding" items. If the amount is subtracted (e.g., "-0.02" or "(0.02)"), capture it as a NEGATIVE number (e.g., -0.02).
-    - If a discount is applied, capture it as a negative number.
-    - Do NOT add a subtracted rounding amount as a positive charge. It must be negative.
-    - Ensure the "total" matches the final payable amount on the invoice.
-
-    The PDF content is structured. Ensure you extract all line items accurately.
-
-    Return ONLY raw JSON with no markdown formatting. Structure:
-    {
-      "items": [
-        { "name": "string", "price": number, "quantity": number }
-      ],
-      "other_charges": [
-        { "name": "string", "amount": number }
-      ],
-      "total": number,
-      "currency": "string"
-    }
+    Analyze this PDF voucher (likely from Zepto, Blinkit, DMart, Amazon, or similar). The content is structured, so ensure all line items are extracted accurately.
+    ${COMMON_INSTRUCTIONS}
   `;
 
   const prompt = isPdf ? PDF_PROMPT : IMAGE_PROMPT;
