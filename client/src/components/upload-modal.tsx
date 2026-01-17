@@ -97,7 +97,7 @@ export function UploadModal() {
             if (files.length > 0) {
                 addFilesToPreview(files);
             } else {
-                setError("No images or PDFs found in clipboard");
+                setError("No supported files found. Note: Browsers generally do not support pasting PDFs. Please use 'Add Files'.");
             }
         } catch (err: any) {
             console.error("Clipboard error:", err);
@@ -105,7 +105,7 @@ export function UploadModal() {
             if (err.name === 'NotAllowedError') {
                 setError("Clipboard permission denied. Please allow access.");
             } else {
-                setError("Could not read from clipboard. Try Ctrl+V instead.");
+                setError("Could not read from clipboard. Try Ctrl+V or 'Add Files' instead.");
             }
         }
     };
