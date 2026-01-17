@@ -8,23 +8,25 @@ import { uploadReceipt } from '@/lib/ocr';
 import { cn } from '@/lib/utils';
 import type { ReceiptGroup } from '@/types';
 
-interface PendingImage {
+interface PendingFile {
     id: string;
     file: File;
     preview: string; // blob URL for preview
+    type: 'image' | 'pdf';
     platform: string;
     date: string;
 }
 
 export function UploadModal() {
     const [isOpen, setIsOpen] = useState(false);
-    const [pendingImages, setPendingImages] = useState<PendingImage[]>([]);
+    const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [processedGroups, setProcessedGroups] = useState<ReceiptGroup[]>([]);
     const [currentStep, setCurrentStep] = useState<'upload' | 'review'>('upload');
     const [error, setError] = useState<string | null>(null);
     const [processingIndex, setProcessingIndex] = useState<number>(-1);
-    const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+    const [previewFileUrl, setPreviewFileUrl] = useState<string | null>(null);
+    const [previewFileType, setPreviewFileType] = useState<'image' | 'pdf' | null>(null);
 
     // JS Theme Detection Logic
     const { theme } = useTheme();
@@ -54,17 +56,17 @@ export function UploadModal() {
             const items = e.clipboardData?.items;
             if (!items) return;
 
-            const imageFiles: File[] = [];
+            const files: File[] = [];
             for (let i = 0; i < items.length; i++) {
-                if (items[i].type.indexOf('image') !== -1) {
+                if (items[i].type.indexOf('image') !== -1 || items[i].type === 'application/pdf') {
                     const file = items[i].getAsFile();
-                    if (file) imageFiles.push(file);
+                    if (file) files.push(file);
                 }
             }
 
-            if (imageFiles.length > 0) {
+            if (files.length > 0) {
                 e.preventDefault(); // Prevent default paste behavior
-                addImagesToPreview(imageFiles);
+                addFilesToPreview(files);
             }
         };
 
@@ -75,23 +77,27 @@ export function UploadModal() {
     const handlePasteClick = async () => {
         try {
             const clipboardItems = await navigator.clipboard.read();
-            const imageFiles: File[] = [];
+            const files: File[] = [];
 
             for (const item of clipboardItems) {
                 // If it's an image, get the blob
                 const imageType = item.types.find(type => type.startsWith('image/'));
-                if (imageType) {
-                    const blob = await item.getType(imageType);
+                const pdfType = item.types.find(type => type === 'application/pdf');
+
+                const type = imageType || pdfType;
+
+                if (type) {
+                    const blob = await item.getType(type);
                     // Convert blob to file
-                    const file = new File([blob], "pasted-image.png", { type: imageType });
-                    imageFiles.push(file);
+                    const file = new File([blob], imageType ? "pasted-image.png" : "pasted-file.pdf", { type: type });
+                    files.push(file);
                 }
             }
 
-            if (imageFiles.length > 0) {
-                addImagesToPreview(imageFiles);
+            if (files.length > 0) {
+                addFilesToPreview(files);
             } else {
-                setError("No images found in clipboard");
+                setError("No images or PDFs found in clipboard");
             }
         } catch (err: any) {
             console.error("Clipboard error:", err);
@@ -106,41 +112,42 @@ export function UploadModal() {
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
-            addImagesToPreview(Array.from(e.target.files));
+            addFilesToPreview(Array.from(e.target.files));
         }
     };
 
-    const addImagesToPreview = (files: File[]) => {
+    const addFilesToPreview = (files: File[]) => {
         const todayDate = new Date().toISOString().split('T')[0];
 
-        const newImages: PendingImage[] = files.map(file => ({
+        const newFiles: PendingFile[] = files.map(file => ({
             id: crypto.randomUUID(),
             file,
             preview: URL.createObjectURL(file),
+            type: file.type === 'application/pdf' ? 'pdf' : 'image',
             platform: 'Zepto', // Default platform
             date: todayDate
         }));
 
-        setPendingImages(prev => [...prev, ...newImages]);
+        setPendingFiles(prev => [...prev, ...newFiles]);
         setError(null);
     };
 
-    const removeImage = (id: string) => {
-        const img = pendingImages.find(i => i.id === id);
-        if (img) {
-            URL.revokeObjectURL(img.preview); // Prevent memory leak
+    const removeFile = (id: string) => {
+        const file = pendingFiles.find(i => i.id === id);
+        if (file) {
+            URL.revokeObjectURL(file.preview); // Prevent memory leak
         }
-        setPendingImages(prev => prev.filter(i => i.id !== id));
+        setPendingFiles(prev => prev.filter(i => i.id !== id));
     };
 
-    const updateImage = (id: string, field: 'platform' | 'date', value: string) => {
-        setPendingImages(prev => prev.map(img =>
-            img.id === id ? { ...img, [field]: value } : img
+    const updateFile = (id: string, field: 'platform' | 'date', value: string) => {
+        setPendingFiles(prev => prev.map(file =>
+            file.id === id ? { ...file, [field]: value } : file
         ));
     };
 
     const handleBatchProcess = async () => {
-        if (pendingImages.length === 0) return;
+        if (pendingFiles.length === 0) return;
 
         setIsProcessing(true);
         setError(null);
@@ -152,14 +159,14 @@ export function UploadModal() {
         const autoMode = preferences?.autoMode ?? true;
 
         try {
-            for (let i = 0; i < pendingImages.length; i++) {
-                const img = pendingImages[i];
+            for (let i = 0; i < pendingFiles.length; i++) {
+                const file = pendingFiles[i];
                 setProcessingIndex(i);
 
                 try {
-                    const group = await uploadReceipt(img.file, selectedModel, autoMode);
-                    group.platform = img.platform;
-                    group.date = img.date;
+                    const group = await uploadReceipt(file.file, selectedModel, autoMode);
+                    group.platform = file.platform;
+                    group.date = file.date;
                     results.push(group);
 
                     // Log which model was used
@@ -167,9 +174,9 @@ export function UploadModal() {
                         console.log(`Receipt ${i + 1} processed using model: ${group._modelUsed}`);
                     }
                 } catch (err: any) {
-                    console.error(`Failed to process image ${i + 1}:`, err);
+                    console.error(`Failed to process file ${i + 1}:`, err);
                     // Throw error to abort the entire batch
-                    throw new Error(`Failed to process image ${i + 1}: ${err.message}`);
+                    throw new Error(`Failed to process file ${i + 1}: ${err.message}`);
                 }
             }
 
@@ -177,8 +184,8 @@ export function UploadModal() {
             setCurrentStep('review');
 
             // Clean up blob URLs
-            pendingImages.forEach(img => URL.revokeObjectURL(img.preview));
-            setPendingImages([]);
+            pendingFiles.forEach(file => URL.revokeObjectURL(file.preview));
+            setPendingFiles([]);
         } catch (err: any) {
             console.error(err);
             setError(err.message || "Failed to process receipts. Ensure Backend is running.");
@@ -198,11 +205,11 @@ export function UploadModal() {
 
     const closeModal = () => {
         // Clean up blob URLs
-        pendingImages.forEach(img => URL.revokeObjectURL(img.preview));
+        pendingFiles.forEach(file => URL.revokeObjectURL(file.preview));
 
         setIsOpen(false);
         setCurrentStep('upload');
-        setPendingImages([]);
+        setPendingFiles([]);
         setProcessedGroups([]);
         setError(null);
         setProcessingIndex(-1);
@@ -263,9 +270,9 @@ export function UploadModal() {
                                     >
                                         {currentStep === 'review'
                                             ? `Review ${processedGroups.length} Receipt(s)`
-                                            : pendingImages.length > 0
-                                                ? `Preview ${pendingImages.length} Image(s)`
-                                                : "Upload Receipts"}
+                                            : pendingFiles.length > 0
+                                                ? `Preview ${pendingFiles.length} File(s)`
+                                                : "Upload Receipts & Vouchers"}
                                         {!isProcessing && (
                                             <button
                                                 onClick={closeModal}
@@ -378,12 +385,12 @@ export function UploadModal() {
                                                     </button>
                                                 </div>
                                             </div>
-                                        ) : pendingImages.length > 0 ? (
-                                            // Preview Step - Show image previews with metadata
+                                        ) : pendingFiles.length > 0 ? (
+                                            // Preview Step - Show file previews with metadata
                                             <div className="space-y-4">
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[50vh] overflow-y-auto pr-2">
-                                                    {pendingImages.map((img, index) => (
-                                                        <div key={img.id} className={cn(
+                                                    {pendingFiles.map((file, index) => (
+                                                        <div key={file.id} className={cn(
                                                             "border-2 rounded-lg p-3 relative transition-all",
                                                             isProcessing && processingIndex === index
                                                                 ? "border-primary bg-primary/5"
@@ -391,7 +398,7 @@ export function UploadModal() {
                                                         )}>
                                                             {!isProcessing && (
                                                                 <button
-                                                                    onClick={() => removeImage(img.id)}
+                                                                    onClick={() => removeFile(file.id)}
                                                                     className={cn(
                                                                         "absolute -top-2 -right-2 p-2 rounded-full transition-all z-10 shadow-lg border-2 border-[#FD366E]",
                                                                         isDark
@@ -404,12 +411,32 @@ export function UploadModal() {
                                                             )}
 
                                                             <div className="relative mb-3 group">
-                                                                <img
-                                                                    src={img.preview}
-                                                                    alt={`Preview ${index + 1}`}
-                                                                    onClick={() => setPreviewImageUrl(img.preview)}
-                                                                    className="w-full h-32 sm:h-40 object-cover rounded border-2 border-border hover:border-pink-500 hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer"
-                                                                />
+                                                                {file.type === 'pdf' ? (
+                                                                    <div
+                                                                        onClick={() => {
+                                                                            setPreviewFileUrl(file.preview);
+                                                                            setPreviewFileType('pdf');
+                                                                        }}
+                                                                        className="w-full h-32 sm:h-40 bg-gray-100 dark:bg-gray-800 rounded border-2 border-border hover:border-pink-500 hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer flex items-center justify-center overflow-hidden relative"
+                                                                    >
+                                                                        <embed
+                                                                            src={`${file.preview}#toolbar=0&navpanes=0&scrollbar=0`}
+                                                                            type="application/pdf"
+                                                                            className="w-full h-full pointer-events-none"
+                                                                        />
+                                                                         <div className="absolute inset-0 bg-transparent" />
+                                                                    </div>
+                                                                ) : (
+                                                                    <img
+                                                                        src={file.preview}
+                                                                        alt={`Preview ${index + 1}`}
+                                                                        onClick={() => {
+                                                                            setPreviewFileUrl(file.preview);
+                                                                            setPreviewFileType('image');
+                                                                        }}
+                                                                        className="w-full h-32 sm:h-40 object-cover rounded border-2 border-border hover:border-pink-500 hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer"
+                                                                    />
+                                                                )}
                                                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
                                                                     <span className="text-white text-xs bg-black/50 px-2 py-1 rounded">Click to view</span>
                                                                 </div>
@@ -423,7 +450,7 @@ export function UploadModal() {
                                                             <div className="space-y-2">
                                                                 <div>
                                                                     <label className={cn("block text-xs font-medium mb-1", isDark ? "text-gray-400" : "text-gray-600")}>Platform</label>
-                                                                    <Listbox value={img.platform} onChange={(value) => updateImage(img.id, 'platform', value)} disabled={isProcessing}>
+                                                                    <Listbox value={file.platform} onChange={(value) => updateFile(file.id, 'platform', value)} disabled={isProcessing}>
                                                                         {({ open }) => (
                                                                             <div className="relative">
                                                                                 <Listbox.Button className={cn(
@@ -431,7 +458,7 @@ export function UploadModal() {
                                                                                     isDark ? "bg-zinc-800 text-gray-100" : "bg-white text-gray-900",
                                                                                     isProcessing && "opacity-50 cursor-not-allowed"
                                                                                 )}>
-                                                                                    <span>{img.platform}</span>
+                                                                                    <span>{file.platform}</span>
                                                                                     <ChevronDown className={cn("w-3 h-3 transition-transform text-gray-500", open && "rotate-180")} />
                                                                                 </Listbox.Button>
                                                                                 <Transition
@@ -479,8 +506,8 @@ export function UploadModal() {
                                                                     <label className={cn("block text-xs font-medium mb-1", isDark ? "text-gray-400" : "text-gray-600")}>Date</label>
                                                                     <input
                                                                         type="date"
-                                                                        value={img.date}
-                                                                        onChange={(e) => updateImage(img.id, 'date', e.target.value)}
+                                                                        value={file.date}
+                                                                        onChange={(e) => updateFile(file.id, 'date', e.target.value)}
                                                                         onClick={(e) => e.currentTarget.showPicker?.()}
                                                                         disabled={isProcessing}
                                                                         className={cn(
@@ -495,7 +522,7 @@ export function UploadModal() {
                                                     ))}
                                                 </div>
 
-                                                {/* Add more images button */}
+                                                {/* Add more files button */}
                                                 {!isProcessing && (
                                                     <div className="flex flex-col sm:flex-row gap-3">
                                                         <label
@@ -506,12 +533,12 @@ export function UploadModal() {
                                                             )}
                                                         >
                                                             <ImageIcon className="w-4 h-4" />
-                                                            <span className="text-sm font-medium">Add Images</span>
+                                                            <span className="text-sm font-medium">Add Files</span>
                                                             <input
                                                                 id="add-more-files"
                                                                 type="file"
                                                                 className="hidden"
-                                                                accept="image/*"
+                                                                accept="image/*,application/pdf"
                                                                 multiple
                                                                 onChange={handleFileChange}
                                                             />
@@ -558,10 +585,10 @@ export function UploadModal() {
                                                         {isProcessing ? (
                                                             <>
                                                                 <Loader2 className="w-4 h-4 animate-spin" />
-                                                                Processing {processingIndex + 1}/{pendingImages.length}
+                                                                Processing {processingIndex + 1}/{pendingFiles.length}
                                                             </>
                                                         ) : (
-                                                            `Process ${pendingImages.length} Image${pendingImages.length > 1 ? 's' : ''}`
+                                                            `Process ${pendingFiles.length} File${pendingFiles.length > 1 ? 's' : ''}`
                                                         )}
                                                     </button>
                                                 </div>
@@ -582,7 +609,7 @@ export function UploadModal() {
                                                             <span className="font-semibold">Click to upload</span> or drag and drop
                                                         </p>
                                                         <p className={cn("text-xs mb-3", isDark ? "text-gray-400" : "text-gray-500")}>
-                                                            Select one or multiple receipt images
+                                                            Select images or PDFs
                                                         </p>
 
                                                         {/* Paste Button for Mobile/Click Support */}
@@ -612,7 +639,7 @@ export function UploadModal() {
                                                         id="dropzone-file"
                                                         type="file"
                                                         className="hidden"
-                                                        accept="image/*"
+                                                        accept="image/*,application/pdf"
                                                         multiple
                                                         onChange={handleFileChange}
                                                     />
@@ -630,10 +657,10 @@ export function UploadModal() {
                 </Dialog>
             </Transition>
 
-            {/* Full Image Preview Modal */}
-            {previewImageUrl && (
-                <Transition appear show={!!previewImageUrl} as={Fragment}>
-                    <Dialog as="div" className="relative z-[60]" onClose={() => setPreviewImageUrl(null)}>
+            {/* Full Preview Modal */}
+            {previewFileUrl && (
+                <Transition appear show={!!previewFileUrl} as={Fragment}>
+                    <Dialog as="div" className="relative z-[60]" onClose={() => setPreviewFileUrl(null)}>
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
@@ -659,16 +686,26 @@ export function UploadModal() {
                                 >
                                     <Dialog.Panel className="relative max-w-5xl w-full">
                                         <button
-                                            onClick={() => setPreviewImageUrl(null)}
+                                            onClick={() => setPreviewFileUrl(null)}
                                             className="absolute -top-12 right-0 p-2 text-white hover:text-primary transition-colors"
                                         >
                                             <X className="w-6 h-6" />
                                         </button>
-                                        <img
-                                            src={previewImageUrl}
-                                            alt="Full preview"
-                                            className="w-full h-auto max-h-[90vh] object-contain rounded-lg border-2 border-pink-500 shadow-2xl"
-                                        />
+                                        {previewFileType === 'pdf' ? (
+                                            <div className="w-full h-[80vh] bg-white rounded-lg border-2 border-pink-500 shadow-2xl overflow-hidden">
+                                                <embed
+                                                    src={previewFileUrl}
+                                                    type="application/pdf"
+                                                    className="w-full h-full"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <img
+                                                src={previewFileUrl}
+                                                alt="Full preview"
+                                                className="w-full h-auto max-h-[90vh] object-contain rounded-lg border-2 border-pink-500 shadow-2xl"
+                                            />
+                                        )}
                                     </Dialog.Panel>
                                 </Transition.Child>
                             </div>

@@ -33,6 +33,9 @@ export const processReceiptImage = async (
     model: modelId
   });
 
+  // Determine prompt based on file type
+  const isPdf = finalMimeType === 'application/pdf';
+
   const filePart = {
     inlineData: {
       data: fileBuffer.toString("base64"),
@@ -40,7 +43,7 @@ export const processReceiptImage = async (
     },
   };
 
-  const prompt = `
+  const IMAGE_PROMPT = `
     Analyze this receipt image and extract the following information in JSON format:
     1. Items (name and price). strictly numbers for price.
     2. Other charges (name and amount) like handling charge, platform fees, taxes, etc.
@@ -59,6 +62,30 @@ export const processReceiptImage = async (
       "currency": "string"
     }
   `;
+
+  const PDF_PROMPT = `
+    Analyze this PDF voucher (likely from Zepto, Blinkit, DMart, Amazon, or similar) and extract the following information in JSON format:
+    1. Items (name, price per unit, and quantity). Strictly numbers for price.
+    2. Other charges (name and amount) like handling charge, platform fees, taxes, delivery charges, etc.
+    3. Total Amount
+    4. Currency (default INR)
+
+    The PDF content is structured. Ensure you extract all line items accurately.
+
+    Return ONLY raw JSON with no markdown formatting. Structure:
+    {
+      "items": [
+        { "name": "string", "price": number, "quantity": number }
+      ],
+      "other_charges": [
+        { "name": "string", "amount": number }
+      ],
+      "total": number,
+      "currency": "string"
+    }
+  `;
+
+  const prompt = isPdf ? PDF_PROMPT : IMAGE_PROMPT;
 
   // ✅ CHANGE 2: Add Safety Settings so receipts don't get blocked as "PII"
   const safetySettings = [
