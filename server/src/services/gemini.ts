@@ -50,20 +50,27 @@ export const processReceiptImage = async (
     3. Total Amount
     4. Currency (default INR)
 
-    CRITICAL INSTRUCTIONS FOR NEGATIVE VALUES & MATHEMATICAL VERIFICATION:
-    1. **Identify Negative Items:** Look for discounts, returns, "Round Off", or adjustments.
-       - If a value is in parentheses like "(0.01)" or has a minus sign "-0.01", IT IS NEGATIVE.
-       - "Round Off" can be positive or negative. Check the math!
+    --------------------------------------------------------
+    CRITICAL: MATHEMATICAL CONSISTENCY & ROUNDING LOGIC
+    --------------------------------------------------------
+    You must ensure the extracted numbers are mathematically consistent.
 
-    2. **Mathematical Verification (Mental Step):**
-       - Sum all extracted items and other charges.
-       - Compare the sum with the "Total Amount" printed on the receipt.
-       - If Sum > Total Amount, then one or more items (likely Round Off or Discount) MUST be negative.
-       - Example: If Items Sum = 100.01 and Total = 100.00, then Round Off 0.01 must be **-0.01**.
+    1. **Calculate the Sum:**
+       Sum = (Sum of all Item Prices * Quantity) + (Sum of all Other Charges).
 
-    3. **Output Correction:**
-       - Ensure that any subtracted amount is returned as a NEGATIVE number (e.g., -50, -0.01).
-       - Do NOT return a positive price for an item that subtracts from the total.
+    2. **Compare with Printed Total:**
+       Check if Calculated Sum == Printed Total.
+
+    3. **HANDLE ROUND OFF / ADJUSTMENTS:**
+       - "Round Off" or "Rounding" items are frequently SUBTRACTED even if they appear as positive numbers (e.g., 0.01).
+       - IF (Calculated Sum > Printed Total) AND (Calculated Sum - Printed Total matches the Round Off amount):
+         -> YOU MUST RETURN THE ROUND OFF AMOUNT AS NEGATIVE (e.g., -0.01).
+       - IF (Calculated Sum < Printed Total):
+         -> The Round Off is likely positive.
+
+    4. **Handle Discounts:**
+       - Any item labeled "Discount", "Savings", or appearing in parentheses "(...)" is NEGATIVE.
+       - Ensure you extract it as a negative number.
 
     Return ONLY raw JSON with no markdown formatting. Structure:
     {
@@ -79,12 +86,15 @@ export const processReceiptImage = async (
   `;
 
   const IMAGE_PROMPT = `
-    Analyze this receipt image.
+    Analyze this receipt image. Use OCR to extract text and identify values.
     ${COMMON_INSTRUCTIONS}
   `;
 
   const PDF_PROMPT = `
-    Analyze this PDF voucher (likely from Zepto, Blinkit, DMart, Amazon, or similar). The content is structured, so ensure all line items are extracted accurately.
+    Analyze this PDF voucher. This is a digital document with structured data (likely columns for Item Name, Qty, Rate, Amount).
+    - Rely on the column structure to accurately identify line items and prices.
+    - Do not confuse unit price with total price; extract the total price for the line item if possible, or (price * quantity).
+    - Look for "Grand Total" or "Net Payable" as the Total Amount.
     ${COMMON_INSTRUCTIONS}
   `;
 

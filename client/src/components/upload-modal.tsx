@@ -97,7 +97,7 @@ export function UploadModal() {
             if (files.length > 0) {
                 addFilesToPreview(files);
             } else {
-                setError("No supported files found. Note: Browsers generally do not support pasting PDFs. Please use 'Add Files'.");
+                setError("No supported files found. Note: Pasting PDF files directly is typically not supported by browsers. Please use 'Add Files' or drag & drop for PDFs.");
             }
         } catch (err: any) {
             console.error("Clipboard error:", err);
@@ -272,7 +272,7 @@ export function UploadModal() {
                                             ? `Review ${processedGroups.length} Receipt(s)`
                                             : pendingFiles.length > 0
                                                 ? `Preview ${pendingFiles.length} File(s)`
-                                                : "Upload Receipts & Vouchers"}
+                                                : "Upload Receipts & PDF Vouchers"}
                                         {!isProcessing && (
                                             <button
                                                 onClick={closeModal}
@@ -420,7 +420,7 @@ export function UploadModal() {
                                                                         className="w-full h-32 sm:h-40 bg-gray-100 dark:bg-gray-800 rounded border-2 border-border hover:border-pink-500 hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer flex items-center justify-center overflow-hidden relative"
                                                                     >
                                                                         <embed
-                                                                            src={`${file.preview}#toolbar=0&navpanes=0&scrollbar=0`}
+                                                                            src={`${file.preview}#toolbar=0&navpanes=0&scrollbar=0&page=1&view=Fit`}
                                                                             type="application/pdf"
                                                                             className="w-full h-full pointer-events-none"
                                                                         />
@@ -609,7 +609,7 @@ export function UploadModal() {
                                                             <span className="font-semibold">Click to upload</span> or drag and drop
                                                         </p>
                                                         <p className={cn("text-xs mb-3", isDark ? "text-gray-400" : "text-gray-500")}>
-                                                            Select images or PDFs
+                                                            Select images or PDF Vouchers
                                                         </p>
 
                                                         {/* Paste Button for Mobile/Click Support */}
