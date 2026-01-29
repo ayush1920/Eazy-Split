@@ -156,6 +156,11 @@ export const processReceiptImage = async (
   }
 };
 
+// Use regex with word boundaries to avoid false positives (e.g. "Coffee" matching "off")
+// Optimization: Moved to module scope to prevent re-compilation on every function call
+const DISCOUNT_REGEX = /\b(discount|savings?|coupon|promo|off|less)\b/i;
+const ROUND_OFF_KEYWORDS = ['round off', 'rounding', 'roundoff', 'adjustment'];
+
 /**
  * rigorously validates and corrects the parsed receipt data.
  * - Enforces negative signs for discounts.
@@ -169,19 +174,15 @@ export function sanitizeParsedData(data: any): any {
     return 0;
   };
 
-  // Use regex with word boundaries to avoid false positives (e.g. "Coffee" matching "off")
-  const discountRegex = /\b(discount|savings?|coupon|promo|off|less)\b/i;
-  const roundOffKeywords = ['round off', 'rounding', 'roundoff', 'adjustment'];
-
   // 1. First Pass: Enforce Negative Signs on explicit Discounts
   const enforceNegatives = (list: any[]) => {
     if (!Array.isArray(list)) return;
     list.forEach(item => {
       const name = (item.name || '');
       // Check if it's a discount, but IGNORE "Round Off" which might contain "off"
-      const isRoundOff = roundOffKeywords.some(k => name.toLowerCase().includes(k));
+      const isRoundOff = ROUND_OFF_KEYWORDS.some(k => name.toLowerCase().includes(k));
 
-      if (discountRegex.test(name) && !isRoundOff) {
+      if (DISCOUNT_REGEX.test(name) && !isRoundOff) {
         // If price/amount is positive, flip it
         if (item.price !== undefined && getVal(item.price) > 0) item.price = -getVal(item.price);
         if (item.amount !== undefined && getVal(item.amount) > 0) item.amount = -getVal(item.amount);
@@ -207,7 +208,7 @@ export function sanitizeParsedData(data: any): any {
     if (!Array.isArray(list)) return;
     list.forEach(item => {
       const name = (item.name || '').toLowerCase();
-      const isRoundOff = roundOffKeywords.some(k => name.includes(k));
+      const isRoundOff = ROUND_OFF_KEYWORDS.some(k => name.includes(k));
       const val = getVal(item.price !== undefined ? item.price : item.amount);
       const qty = getVal(item.quantity) || 1;
 
