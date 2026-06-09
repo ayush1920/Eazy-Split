@@ -121,7 +121,9 @@ export const processReceiptImage = async (
     const response = await result.response;
     const text = response.text();
 
-    console.log("Gemini Raw Response:", text); // Debug log
+    if (process.env.NODE_ENV !== 'production') {
+      console.log("Gemini Raw Response:", text); // Debug log
+    }
 
     // Clean markdown if present
     const jsonStr = text.replace(/```json/g, "").replace(/```/g, "").trim();
