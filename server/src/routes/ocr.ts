@@ -21,7 +21,7 @@ router.post('/', upload.single('image'), async (req: any, res: any) => {
         // Try to get stored preferences, but don't fail if it doesn't work (Vercel read-only FS)
         let preferences: any = {};
         try {
-            preferences = getPreferences();
+            preferences = await getPreferences();
         } catch (e) {
             console.warn('Could not read server preferences, using defaults');
         }
