@@ -15,7 +15,6 @@ async function testQuotaResponse() {
     }
 
     const models = [
-        'gemini-3.1-flash',
         'gemini-3.5-flash',
         'gemini-3-flash',
         'gemini-3.1-flash-lite',

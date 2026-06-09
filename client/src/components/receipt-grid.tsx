@@ -8,6 +8,13 @@ import { ItemEditModal } from './item-edit-modal';
 import { useTheme } from '@/components/theme-provider';
 import { cn } from '@/lib/utils';
 
+const GROUP_ANIMATION_INITIAL = { opacity: 0, y: 20 };
+const GROUP_ANIMATION_ANIMATE = { opacity: 1, y: 0 };
+
+const ITEM_ANIMATION_INITIAL = { opacity: 0 };
+const ITEM_ANIMATION_ANIMATE = { opacity: 1 };
+const ITEM_ANIMATION_EXIT = { opacity: 0 };
+
 export function ReceiptGrid() {
     const { groups, splits, updateGroup, deleteGroup, updateSplit, loadReceipts } = useReceiptStore();
     const { people } = usePeopleStore();
@@ -118,8 +125,8 @@ export function ReceiptGrid() {
                 groups.map((group) => (
                     <motion.div
                         key={group.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={GROUP_ANIMATION_INITIAL}
+                        animate={GROUP_ANIMATION_ANIMATE}
                         className="border-2 border-border rounded-xl bg-card text-card-foreground shadow-md hover:shadow-2xl hover:border-primary transition-all duration-300 overflow-hidden"
                     >
                         <div className="bg-muted/30 p-4 flex justify-between items-center border-b border-border">
@@ -163,9 +170,9 @@ export function ReceiptGrid() {
                                         {group.items.map((item) => (
                                             <motion.tr
                                                 key={item.id}
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                exit={{ opacity: 0 }}
+                                                initial={ITEM_ANIMATION_INITIAL}
+                                                animate={ITEM_ANIMATION_ANIMATE}
+                                                exit={ITEM_ANIMATION_EXIT}
                                                 className="bg-card hover:bg-accent/5 group/row"
                                             >
                                                 <td
