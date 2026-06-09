@@ -202,7 +202,7 @@ export function SettingsPanel() {
                             </div>
 
                             <p className={cn("text-xs", isDark ? "text-gray-400" : "text-gray-600")}>
-                                Auto fallback will try the next model if the current one exceeds quota.
+                                Auto fallback will try the next model if the current one exceeds quota or experiences high demand.
                             </p>
                         </div>
                     </div>

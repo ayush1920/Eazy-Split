@@ -139,16 +139,17 @@ export const processReceiptImage = async (
     // ✅ CHANGE 3: Log the ACTUAL error so you can see it in VS Code/Terminal
     console.error("🔥 FULL GEMINI ERROR:", JSON.stringify(error, null, 2));
 
-    // Check for quota issues and attempt fallback
-    if (error.status === 429 && attemptFallback) {
-      console.warn(`Quota exceeded for ${modelId}, attempting fallback...`);
+    // Check for quota (429) or high demand (503) issues and attempt fallback
+    if ((error.status === 429 || error.status === 503) && attemptFallback) {
+      const reason = error.status === 429 ? "Quota exceeded" : "High demand / Service Unavailable";
+      console.warn(`${reason} for ${modelId}, attempting fallback...`);
       const fallbackModel = getNextFallbackModel(modelId);
 
       if (fallbackModel) {
         console.log(`Falling back to ${fallbackModel.displayName}`);
         return processReceiptImage(fileBuffer, mimeType, fallbackModel.id, true);
       } else {
-        throw new Error("Quota exceeded for all available models.");
+        throw new Error(`${reason} for all available models.`);
       }
     }
 

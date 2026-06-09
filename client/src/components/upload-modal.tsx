@@ -178,6 +178,10 @@ export function UploadModal() {
                     // Log which model was used
                     if (group._modelUsed) {
                         console.log(`Receipt ${i + 1} processed using model: ${group._modelUsed}`);
+                        if (selectedModel && group._modelUsed !== selectedModel && autoMode) {
+                            // Optionally toast or notify the user
+                            console.warn(`Fallback triggered: Used ${group._modelUsed} instead of ${selectedModel}`);
+                        }
                     }
                 } catch (err: any) {
                     console.error(`Failed to process file ${i + 1}:`, err);
