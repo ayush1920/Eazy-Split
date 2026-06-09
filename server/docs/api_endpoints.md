@@ -139,8 +139,8 @@ List all available Gemini models.
 {
   "models": [
     {
-      "id": "gemini-3.5-flash",
-      "displayName": "Gemini 3.5 Flash",
+      "id": "gemini-3.1-flash",
+      "displayName": "Gemini 3.1 Flash",
       "supportsJsonMode": true,
       "priority": 1
     },
@@ -161,7 +161,7 @@ Get current model preference.
 **Success Response** (200 OK):
 ```json
 {
-  "selectedModel": "gemini-3.5-flash",
+  "selectedModel": "gemini-3.1-flash",
   "autoMode": true
 }
 ```
