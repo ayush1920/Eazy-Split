@@ -154,8 +154,14 @@ export function UploadModal() {
         const results: ReceiptGroup[] = [];
 
         // Get model preference from store
-        const { preferences } = useModelStore.getState();
-        const selectedModel = preferences?.selectedModel;
+        const { preferences, models } = useModelStore.getState();
+        let selectedModel = preferences?.selectedModel;
+
+        // If the selected model doesn't exist in the loaded models, don't pass it so the server defaults it
+        if (selectedModel && models.length > 0 && !models.some(m => m.id === selectedModel)) {
+            selectedModel = undefined;
+        }
+
         const autoMode = preferences?.autoMode ?? true;
 
         try {
@@ -172,6 +178,10 @@ export function UploadModal() {
                     // Log which model was used
                     if (group._modelUsed) {
                         console.log(`Receipt ${i + 1} processed using model: ${group._modelUsed}`);
+                        if (selectedModel && group._modelUsed !== selectedModel && autoMode) {
+                            // Optionally toast or notify the user
+                            console.warn(`Fallback triggered: Used ${group._modelUsed} instead of ${selectedModel}`);
+                        }
                     }
                 } catch (err: any) {
                     console.error(`Failed to process file ${i + 1}:`, err);

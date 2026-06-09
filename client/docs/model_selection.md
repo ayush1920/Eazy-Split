@@ -41,7 +41,7 @@ Allows users to choose which Gemini model to use for OCR processing and toggle a
 
 ## Key Configs
 
-- **Default Model**: `gemini-3.5-flash` (server-side default).
+- **Default Model**: `gemini-3.1-flash` (server-side default).
 - **Auto Mode**: Enabled by default.
 
 ## Failure Modes

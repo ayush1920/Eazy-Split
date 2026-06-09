@@ -7,34 +7,40 @@ export interface ModelConfig {
 
 export const AVAILABLE_MODELS: ModelConfig[] = [
     {
+        id: 'gemini-3.1-flash',
+        displayName: 'Gemini 3.1 Flash',
+        supportsJsonMode: true,
+        priority: 1,
+    },
+    {
         id: 'gemini-3.5-flash',
         displayName: 'Gemini 3.5 Flash',
         supportsJsonMode: true,
-        priority: 1,
+        priority: 2,
     },
     {
         id: 'gemini-3-flash',
         displayName: 'Gemini 3 Flash',
         supportsJsonMode: true,
-        priority: 2,
+        priority: 3,
     },
     {
         id: 'gemini-3.1-flash-lite',
         displayName: 'Gemini 3.1 Flash Lite',
         supportsJsonMode: true,
-        priority: 3,
+        priority: 4,
     },
     {
         id: 'gemini-3.1-pro',
         displayName: 'Gemini 3.1 Pro',
         supportsJsonMode: true,
-        priority: 4,
+        priority: 5,
     },
     {
         id: 'gemma-4-26b-a4b-it',
         displayName: 'Gemma 4 26B',
         supportsJsonMode: false,
-        priority: 5,
+        priority: 6,
     },
 ];
 
