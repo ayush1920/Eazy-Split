@@ -8,7 +8,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 export const processReceiptImage = async (
   fileBuffer: Buffer,
   mimeType: string,
-  modelId: string = 'gemini-2.0-flash',
+  modelId: string = 'gemini-3.5-flash',
   attemptFallback: boolean = true
 ): Promise<{ data: any; modelUsed: string }> => {
   if (!process.env.GEMINI_API_KEY) {
