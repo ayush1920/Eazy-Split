@@ -45,10 +45,10 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 ### Model Selection
 
 ```typescript
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
 ```
 
-**Why gemini-2.5-flash-lite?**
+**Why gemini-3.1-flash-lite?**
 - Fast response times (2-5 seconds)
 - Good accuracy for structured text
 - Cost-effective
@@ -258,7 +258,7 @@ Limited by Gemini API:
 
 ### Cost
 
-**gemini-2.5-flash-lite pricing** (as of 2026):
+**gemini-3.1-flash-lite pricing** (as of 2026):
 - ~$0.001 per request (varies by region)
 - Free tier: 1500 requests/day
 

@@ -15,11 +15,11 @@ async function testQuotaResponse() {
     }
 
     const models = [
-        'gemini-2.0-flash',
-        'gemini-2.5-flash',
-        'gemini-2.5-flash-lite',
-        'gemma-3-12b-it',
-        'gemma-3-27b-it',
+        'gemini-3.5-flash',
+        'gemini-3-flash',
+        'gemini-3.1-flash-lite',
+        'gemini-3.1-pro',
+        'gemma-4-26b-a4b-it',
     ];
 
     console.log('🔍 Testing Gemini API quota responses...\n');

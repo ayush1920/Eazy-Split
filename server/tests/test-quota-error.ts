@@ -16,7 +16,7 @@ async function testQuotaError() {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const modelId = 'gemini-2.5-flash';
+    const modelId = 'gemini-3-flash';
 
     console.log(`🧪 Testing quota error response for ${modelId}...\n`);
 

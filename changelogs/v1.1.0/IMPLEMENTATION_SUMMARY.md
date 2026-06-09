@@ -280,7 +280,7 @@ npm start
 
 **Key Sections**:
 - Gemini API setup
-- Model selection (`gemini-2.5-flash-lite`)
+- Model selection (`gemini-3.1-flash-lite`)
 - Prompt engineering strategy
 - Image encoding process
 - Response cleaning and parsing
