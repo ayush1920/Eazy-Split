@@ -2,6 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import { processReceiptImage } from '../services/gemini';
 import { getPreferences } from '../storage/preferenceStore';
+import { AVAILABLE_MODELS } from '../config/models';
 import { DEFAULT_MODEL } from '../config/models';
 import fs from 'fs';
 
@@ -26,7 +27,12 @@ router.post('/', upload.single('image'), async (req: any, res: any) => {
             console.warn('Could not read server preferences, using defaults');
         }
 
-        const modelToUse = requestedModel || preferences.selectedModel || DEFAULT_MODEL;
+        let modelToUse = requestedModel || preferences.selectedModel || DEFAULT_MODEL;
+        // Verify that the chosen model still exists, otherwise fallback to default
+        if (!AVAILABLE_MODELS.some(m => m.id === modelToUse)) {
+            modelToUse = DEFAULT_MODEL;
+        }
+
         // Parse "true"/"false" string from FormData if present, otherwise default
         const autoMode = requestedAutoMode !== undefined
             ? (requestedAutoMode === 'true')

@@ -63,8 +63,11 @@ export function SettingsPanel() {
     };
 
     const handleAutoModeToggle = (enabled: boolean) => {
+        const currentModel = preferences?.selectedModel || models[0]?.id;
+        const validModel = models.some(m => m.id === currentModel) ? currentModel : models[0]?.id;
+
         setPreferences({
-            selectedModel: preferences?.selectedModel || models[0]?.id,
+            selectedModel: validModel,
             autoMode: enabled
         });
     };
@@ -133,7 +136,7 @@ export function SettingsPanel() {
                                     Preferred Model
                                 </label>
                                 <Listbox
-                                    value={preferences?.selectedModel || models[0]?.id || ''}
+                                    value={(models.some(m => m.id === preferences?.selectedModel) ? preferences?.selectedModel : models[0]?.id) || ''}
                                     onChange={handleModelChange}
                                     disabled={loading || models.length === 0}
                                 >
@@ -149,7 +152,7 @@ export function SettingsPanel() {
                                                 <span>
                                                     {loading ? "Loading models..." :
                                                         models.length === 0 ? "No models found" :
-                                                            (models.find(m => m.id === (preferences?.selectedModel || models[0]?.id))?.displayName || 'Select model')}
+                                                            (models.find(m => m.id === (models.some(m2 => m2.id === preferences?.selectedModel) ? preferences?.selectedModel : models[0]?.id))?.displayName || 'Select model')}
                                                 </span>
                                                 <ChevronDown className={cn("w-4 h-4 transition-transform text-gray-500", open && "rotate-180")} />
                                             </Listbox.Button>

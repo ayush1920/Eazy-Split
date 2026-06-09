@@ -13,8 +13,18 @@ router.get('/', (req, res) => {
 router.get('/current', async (req, res) => {
     try {
         const preferences = await getPreferences();
+        let currentModel = preferences.selectedModel || DEFAULT_MODEL;
+
+        // Verify that the saved model still exists
+        const modelExists = AVAILABLE_MODELS.some(m => m.id === currentModel);
+        if (!modelExists) {
+            currentModel = DEFAULT_MODEL;
+            preferences.selectedModel = DEFAULT_MODEL;
+            await savePreferences(preferences);
+        }
+
         res.json({
-            selectedModel: preferences.selectedModel || DEFAULT_MODEL,
+            selectedModel: currentModel,
             autoMode: preferences.autoMode ?? true,
         });
     } catch (error: any) {
@@ -44,8 +54,16 @@ router.post('/select', async (req, res) => {
 
         await savePreferences(preferences);
 
+        let currentModel = preferences.selectedModel || DEFAULT_MODEL;
+        const modelExists = AVAILABLE_MODELS.some(m => m.id === currentModel);
+        if (!modelExists) {
+            currentModel = DEFAULT_MODEL;
+            preferences.selectedModel = DEFAULT_MODEL;
+            await savePreferences(preferences);
+        }
+
         res.json({
-            selectedModel: preferences.selectedModel || DEFAULT_MODEL,
+            selectedModel: currentModel,
             autoMode: preferences.autoMode ?? true,
         });
     } catch (error: any) {
